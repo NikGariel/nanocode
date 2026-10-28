@@ -22,3 +22,5 @@ node_modules/
 packages/android/nanocode/src/main/rustLibs/
 packages/flutter/**/libs/
 packages/flutter/**/CNanoCode.xcframework/
+__pycache__/
+*.pyc

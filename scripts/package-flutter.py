@@ -1,6 +1,6 @@
 """Assemble a Flutter package from built native artifacts. Run after release downloads."""
 from pathlib import Path
-import shutil, sys
+import shutil, sys, tarfile
 root = Path('packages/flutter')
 source = Path('artifacts/native')
 # Explicit architecture: do not silently ship x86_64 desktop libraries for ARM64.
@@ -15,4 +15,8 @@ for platform in ['ios','macos']:
     dest=root/platform/'CNanoCode.xcframework'
     if dest.exists(): shutil.rmtree(dest)
     shutil.copytree('artifacts/apple-package/CNanoCode.xcframework',dest)
-shutil.make_archive(f'artifacts/nanocode-flutter-{arch}', 'gztar', 'packages', 'flutter')
+with tarfile.open(f'artifacts/nanocode-flutter-{arch}.tar.gz','w:gz') as archive:
+    for p in root.rglob('*'):
+        relative=p.relative_to(root)
+        if p.is_file() and not any(part.startswith('.') or part in ['build','pubspec.lock'] for part in relative.parts):
+            archive.add(p,arcname=str(Path('flutter')/relative))
