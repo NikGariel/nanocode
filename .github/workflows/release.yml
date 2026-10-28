@@ -2,6 +2,15 @@ name: Release artifacts
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to rebuild
+        required: true
+        default: v0.2.0
+        type: string
+env:
+  RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
 permissions:
   contents: read
 jobs:
@@ -9,7 +18,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag || github.ref }}
       - run: node scripts/check-version.mjs
+      - run: node -e 'if (process.env.RELEASE_TAG !== "v" + require("./package.json").version) process.exit(1)'
   native:
     needs: version
     strategy:
@@ -24,6 +36,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag || github.ref }}
       - run: rustup target add ${{ matrix.target }}
       - run: cargo test --locked --workspace --release --target ${{ matrix.target }}
       - run: cargo build --locked --release --target ${{ matrix.target }}
@@ -43,6 +57,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -62,6 +78,8 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag || github.ref }}
       - run: rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-darwin x86_64-apple-darwin
       - run: sh scripts/build-apple.sh
       - run: swift test --package-path packages/apple
@@ -74,6 +92,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag || github.ref }}
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -81,7 +101,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.11.1
-      - run: sdkmanager 'ndk;28.2.13676358' 'cmake;3.22.1' 'platforms;android-35'
+      - run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;28.2.13676358" "cmake;3.22.1" "platforms;android-35"'
       - run: rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android i686-linux-android
       - run: ANDROID_NDK_HOME="$ANDROID_HOME/ndk/28.2.13676358" sh scripts/build-android.sh
       - run: gradle -p packages/android :nanocode:assembleRelease :nanocode:publish
@@ -101,6 +121,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag || github.ref }}
       - uses: actions/download-artifact@v4
         with:
           pattern: native-*
@@ -133,6 +155,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag || github.ref }}
       - uses: actions/download-artifact@v4
         with:
           pattern: archive-*
@@ -142,4 +166,4 @@ jobs:
       - name: Create reviewable draft release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" release/* --draft --verify-tag --title "NanoCode $GITHUB_REF_NAME" --notes-file .github/release-notes.md
+        run: gh release create "$RELEASE_TAG" release/* --draft --verify-tag --title "NanoCode $RELEASE_TAG" --notes-file .github/release-notes.md
