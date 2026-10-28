@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.14)
+project(nanocode LANGUAGES C)
+set(nanocode_bundled_libraries "${CMAKE_CURRENT_SOURCE_DIR}/libs/libnanocode.so" PARENT_SCOPE)
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libs/libnanocode.so")
+  message(FATAL_ERROR "Install the NanoCode release package for your architecture; native library missing")
+endif()

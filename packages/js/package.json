@@ -1,0 +1,14 @@
+{
+  "name":"@nikgariel/nanocode",
+  "version":"0.2.0",
+  "description":"Branded circular codes: Rust-powered generation and scanning for browsers and Node.js",
+  "type":"module",
+  "main":"./index.js",
+  "types":"./index.d.ts",
+  "exports":{".":{"types":"./index.d.ts","import":"./index.js"},"./nanocode.wasm":"./nanocode.wasm"},
+  "files":["index.js","index.d.ts","nanocode.wasm","README.md","LICENSE"],
+  "license":"MIT",
+  "repository":{"type":"git","url":"https://github.com/NikGariel/nanocode.git","directory":"packages/js"},
+  "publishConfig":{"access":"public"},
+  "engines":{"node":">=20"}
+}

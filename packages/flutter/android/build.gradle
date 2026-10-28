@@ -1,0 +1,13 @@
+group = 'dev.nanocode'
+version = '0.2.0'
+buildscript {
+    repositories { google(); mavenCentral() }
+    dependencies { classpath 'com.android.tools.build:gradle:8.9.2' }
+}
+apply plugin: 'com.android.library'
+android {
+    namespace 'dev.nanocode.ffi'
+    compileSdk 35
+    defaultConfig { minSdk 23 }
+    sourceSets { main.jniLibs.srcDirs = ['libs'] }
+}

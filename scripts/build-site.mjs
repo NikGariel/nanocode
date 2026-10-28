@@ -1,0 +1,11 @@
+import {build} from 'esbuild';
+import {mkdir,copyFile,cp,writeFile} from 'node:fs/promises';
+await mkdir('dist/assets',{recursive:true});
+await build({entryPoints:{landing:'site/landing.js',app:'site/app.js',worker:'site/worker.js',docs:'site/docs.js'},outdir:'dist/assets',bundle:true,format:'esm',target:'es2022',minify:true});
+await copyFile('site/style.css','dist/style.css');
+await cp('site/assets','dist/assets',{recursive:true});
+await copyFile('packages/js/nanocode.wasm','dist/assets/nanocode.wasm');
+await import('./render-content.mjs');
+await writeFile('dist/.nojekyll','');
+await copyFile('site/404.html','dist/404.html');
+console.log('Site ready: dist/ (GitHub Pages compatible)');

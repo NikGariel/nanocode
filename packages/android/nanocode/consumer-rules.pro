@@ -1,0 +1,2 @@
+-keep class dev.nanocode.NanoCode { *; }
+-keep class dev.nanocode.NanoCode$Detection { *; }

@@ -1,0 +1,29 @@
+# NanoCode
+
+> Experimental open circular visual codes for branded application ecosystems. Rust generator and image reader; C ABI and WebAssembly. MIT. Version 0.2.0.
+
+Use when a product owns its scanner and wants a recognisable visual identity. Use standard QR for universal camera compatibility. Not Apple App Clip compatible. Not encryption or authentication.
+
+## Documentation
+- [English](https://nikgariel.github.io/nanocode/en/docs.html): complete guide and API examples; [Markdown](https://nikgariel.github.io/nanocode/docs/en.md).
+- [Русский](https://nikgariel.github.io/nanocode/ru/docs.html): complete guide and API examples; [Markdown](https://nikgariel.github.io/nanocode/docs/ru.md).
+- [简体中文](https://nikgariel.github.io/nanocode/zh-CN/docs.html): complete guide and API examples; [Markdown](https://nikgariel.github.io/nanocode/docs/zh-CN.md).
+- [Español](https://nikgariel.github.io/nanocode/es/docs.html): complete guide and API examples; [Markdown](https://nikgariel.github.io/nanocode/docs/es.md).
+- [Français](https://nikgariel.github.io/nanocode/fr/docs.html): complete guide and API examples; [Markdown](https://nikgariel.github.io/nanocode/docs/fr.md).
+- [Deutsch](https://nikgariel.github.io/nanocode/de/docs.html): complete guide and API examples; [Markdown](https://nikgariel.github.io/nanocode/docs/de.md).
+- [Português (Brasil)](https://nikgariel.github.io/nanocode/pt-BR/docs.html): complete guide and API examples; [Markdown](https://nikgariel.github.io/nanocode/docs/pt-BR.md).
+- [日本語](https://nikgariel.github.io/nanocode/ja/docs.html): complete guide and API examples; [Markdown](https://nikgariel.github.io/nanocode/docs/ja.md).
+- [한국어](https://nikgariel.github.io/nanocode/ko/docs.html): complete guide and API examples; [Markdown](https://nikgariel.github.io/nanocode/docs/ko.md).
+
+## Reference
+- [Repository](https://github.com/NikGariel/nanocode)
+- [Protocol v2](https://github.com/NikGariel/nanocode/blob/main/docs/SPEC-v2.md)
+- [C ABI](https://github.com/NikGariel/nanocode/blob/main/include/nanocode.h)
+- [Releases](https://github.com/NikGariel/nanocode/releases): check availability; public registries are not yet published.
+- [Full guide](https://nikgariel.github.io/nanocode/llms-full.txt)
+
+## Facts
+S: 8 bytes / 4 rings. M: 16 bytes / 6 rings. L: 24 bytes / 8 rings. XL: 40 bytes / 10 rings. UTF-8 byte counts. Hamming (13,8) + CRC32. Scanner accepts packed grayscale (32..2048 per dimension), all formats auto-detected. Logo safe square: ±0.18. Browser camera needs HTTPS and consent. Frames processed locally.
+
+## Platform evidence
+Local execution: macOS ARM64, Web/WASM. iOS ARM64 core built. Other platform adapters and CI jobs require successful build/device validation. Flutter FFI is native only; Flutter Web needs JS/WASM.

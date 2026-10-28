@@ -1,0 +1,15 @@
+[package]
+name = "nanocode"
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+description = "Branded circular visual codes: generator and markerless reader with a portable C ABI"
+repository = "https://github.com/NikGariel/nanocode"
+readme = "README.md"
+keywords = ["barcode", "vision", "wasm", "ffi", "scanner"]
+categories = ["encoding", "multimedia::images"]
+[lib]
+crate-type = ["rlib", "staticlib", "cdylib"]
+[[bin]]
+name = "nanocode"
+path = "src/main.rs"

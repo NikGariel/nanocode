@@ -1,0 +1,29 @@
+name: CI
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  core-web-docs:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: rustup target add wasm32-unknown-unknown
+      - run: npm ci
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: npm run build
+      - run: npm test
+      - run: node scripts/check-site.mjs
+      - run: node scripts/test-package.mjs
+      - run: git diff --exit-code -- README.md docs/i18n llms.txt
+  apple:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v6
+      - run: rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-darwin x86_64-apple-darwin
+      - run: sh scripts/build-apple.sh
+      - run: swift test --package-path packages/apple
