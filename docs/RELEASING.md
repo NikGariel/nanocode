@@ -9,6 +9,10 @@ User-facing installation/release instructions exist in all nine [guides](../READ
 5. Optional registry publishing uses maintainer-owned names and credentials. The JS scoped package is `@nikgariel/nanocode`; verify scope ownership. Reserve the crate/pub package names before replacing path installation with registry commands. Maven Central requires namespace verification, signing and publication metadata. Never substitute an unrelated package with a similar name.
 6. Apple archives contain a local Swift package and XCFramework. They can be added in Xcode immediately after extraction. A remote SwiftPM binary distribution needs a dedicated repository manifest with the exact release URL and `swift package compute-checksum` of that version's XCFramework ZIP. No fabricated checksum or nonfunctional remote package URL is shipped here.
 
+### Recovering a failed build
+
+For a transient download or runner failure, use **Re-run failed jobs** on the existing Actions run; successful jobs and their artifacts are retained. If the workflow itself needs a fix, commit the fix to `main`, then run **Release artifacts → Run workflow** from `main` with the existing version tag in the `tag` field. The workflow checks out that exact tag for every SDK and verifies its manifest version. Do not move a published tag to repair build infrastructure. Source or API changes require a new version and tag. A release is created only after all required jobs succeed.
+
 ## GitHub Pages
 
 Target repository: `NikGariel/nanocode`, independent of the legacy `nanocodegenerator`. In repository Settings → Pages, choose GitHub Actions. The Pages workflow deploys `dist/`, with `SITE_URL` derived from configure-pages. Enable Pages only after the new repository exists. The expected project address is `https://nikgariel.github.io/nanocode/`; it is not live merely because the build succeeds.
