@@ -188,7 +188,7 @@ function tick(){
   const v=$('video');
   if(!v.videoWidth||v.readyState<2||v.currentTime===lastVideoTime){scheduleScan(90);return;}
   lastVideoTime=v.currentTime;workStarted=performance.now();
-  const {width:w,height:h}=scanSize(v.videoWidth,v.videoHeight,attempt++);
+  const {width:w,height:h}=scanSize(v.videoWidth,v.videoHeight,attempt++,stable>0);
   const gray=luminance(v,w,h);busy=true;
   worker.postMessage({gray:gray.buffer,width:w,height:h,id:++sequence},[gray.buffer]);
 }

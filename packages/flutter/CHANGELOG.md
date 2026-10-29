@@ -1,4 +1,4 @@
-## 0.2.2
+## 0.2.3
 Fix logo-aware screen reading in the shared core. Dart API and encoded format unchanged.
 
 ## 0.2.1

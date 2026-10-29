@@ -1,4 +1,4 @@
-Includes the 0.2.1 speed/power improvements plus a fix for logos under screen banding: corrected-image passes exclude the centre before geometry fitting, and the local illumination envelope follows arc thickness. The exact landing-page N is regression-tested at three sizes with blur and bands.
+Fixes the reported real monitor capture with the landing-page N intact. The reader corrects illumination at the detected code’s scale, compares geometry seeds, and accounts for blurred arcs before full ECC/CRC validation. The browser confirms the first detection immediately at higher resolution. Private capture replay now checks detection, tracking and disappearance through the web worker.
 
 Scanner performance update. Encoded S/M/L/XL and legacy v1 compatibility are unchanged.
 

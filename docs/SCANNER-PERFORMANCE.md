@@ -56,3 +56,20 @@ Use **Save frame** before confirmation to retain an actual failing camera image.
 After deployment, the user confirmed fast reading without a logo but reported failure with the landing-page N. An additional fixture reproduced a miss in 0.2.1 when that exact polygon was combined with display banding and blur. Corrected-image passes now exclude the safe centre from their first geometry/palette fit, instead of allowing logo pixels to consume the region-search budget. The envelope radius was reduced to just exceed half the maximum arc stroke plus blur; the previous radius also caused a failure at 512 pixels.
 
 The extended 21-fixture benchmark passes all expected outcomes locally. The N/banding fixture changes from a miss (100.4 ms median) to a validated read (76.1 ms); plain N reads in 10.8 ms and N inside the monitor scene in 14.2 ms. Ordinary monitor scenes remain approximately 12–29 ms. Rust regressions use the real landing payload ORBIT:EVT:042 and N polygon at 256, 384 and 512 pixels, with and without blur/banding. The user’s actual failing camera frame and a phone retest are still needed to establish that the observed field case is resolved.
+
+
+## 0.2.3: captured monitor frame with N
+
+The subsequent user capture still failed in 0.2.2 despite the synthetic improvements. Version 0.2.3 estimates the illumination envelope inside edge-derived code regions as well as the whole frame. It compares the bounding-box and hull-ellipse seeds instead of unconditionally trusting the hull. The radial proposal gate allows blurred ink to occupy a wider footprint; acceptance still requires the complete ECC/CRC checks. Region correction has a shared cap of 12,000 geometry evaluations per raw-image pass.
+
+The unchanged private 720×1280 capture now decodes ORBIT:EVT:042 (M) with no corrected bits, as does its 540×960 bilinear downsample. The 360×640 downsample still fails. The web scheduler therefore keeps the next frame at 960 pixels after a first detection, instead of reverting immediately to 640. This also avoids losing the first detection from the temporal confirmation window. Existing rest intervals and camera shutdown are preserved.
+
+In Node v21.7.3 on macOS ARM64, one replay through the actual browser worker took 49.8 ms for the 540×960 frame and 16.0 ms for tracked confirmation. A following blank image returned no detection. These are individual desktop measurements, not phone timing or an energy benchmark. All 21 synthetic benchmark outcomes and the existing Rust/JS tests pass. A live iPhone Safari retest is still required.
+
+Private captures are intentionally absent from this repository. To replay a local image converted to headerless row-major 8-bit grayscale:
+
+```sh
+node scripts/test-camera-frame.mjs /private/path/frame.gray 540 960 ORBIT:EVT:042
+```
+
+The script verifies full-frame detection, tracked confirmation, and rejection after the code disappears. It does not upload or copy the image into the repository.

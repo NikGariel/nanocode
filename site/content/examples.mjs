@@ -5,7 +5,7 @@ npm ci
 npm run build
 npm run dev`;
 export const examples = [
-{ name:'Web / JavaScript', lang:'js', install:'npm install ./nikgariel-nanocode-0.2.2.tgz', code:`import {loadNanoCode} from '@nikgariel/nanocode';
+{ name:'Web / JavaScript', lang:'js', install:'npm install ./nikgariel-nanocode-0.2.3.tgz', code:`import {loadNanoCode} from '@nikgariel/nanocode';
 const nc = await loadNanoCode();
 const svg = nc.svg('ORBIT:EVT:042', {
   one: '#00a6a1', zero: '#77dddd', background: '#ffffff'
@@ -15,7 +15,7 @@ const backgrounds = nc.backgrounds('#00a6a1', '#77dddd');
 // In a Worker: packed grayscale, dimensions 32..2048.
 const result = nc.scan(gray, width, height);
 if (result) console.log(result.bytes, result.formatName);`},
-{ name:'Node.js', lang:'js', install:'npm install ./nikgariel-nanocode-0.2.2.tgz', code:`import {readFile, writeFile} from 'node:fs/promises';
+{ name:'Node.js', lang:'js', install:'npm install ./nikgariel-nanocode-0.2.3.tgz', code:`import {readFile, writeFile} from 'node:fs/promises';
 import {loadNanoCode} from '@nikgariel/nanocode';
 const nc = await loadNanoCode(await readFile(
   new URL(import.meta.resolve('@nikgariel/nanocode/nanocode.wasm'))
@@ -29,7 +29,7 @@ let backgrounds = try NanoCode.backgrounds(one: 0x00a6a1, zero: 0x77dddd)
 if let result = try NanoCode.scan(gray, width: width, height: height) {
     print(result.bytes, result.format)
 }`},
-{ name:'Android · Kotlin', lang:'kotlin', install:'// Add the extracted release Maven repository to settings.gradle:\nmaven { url = uri("../nanocode-maven") }\n// app/build.gradle:\nimplementation("dev.nanocode:nanocode:0.2.2")', code:`import dev.nanocode.NanoCode
+{ name:'Android · Kotlin', lang:'kotlin', install:'// Add the extracted release Maven repository to settings.gradle:\nmaven { url = uri("../nanocode-maven") }\n// app/build.gradle:\nimplementation("dev.nanocode:nanocode:0.2.3")', code:`import dev.nanocode.NanoCode
 val svg = NanoCode.svg("ORBIT:EVT:042".toByteArray(Charsets.UTF_8))
 val backgrounds = NanoCode.backgrounds(0x00a6a1, 0x77dddd)
 // CameraX analysis executor: packed Y bytes, respect rowStride/pixelStride.

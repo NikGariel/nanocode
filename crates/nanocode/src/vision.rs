@@ -220,6 +220,7 @@ fn scan_pass(
     ) {
         return Ok(found);
     }
+    let mut correction_budget = if exclude_logo_first { 0 } else { 12000 };
     for region in crate::vision_regions::proposals(gray, width, height) {
         // An edge component may be the code's card border rather than its outer ring.
         // Retry just inside that border to exclude surrounding UI and its antialiasing.
@@ -237,7 +238,21 @@ fn scan_pass(
             for row in y..y + h {
                 crop.extend_from_slice(&gray[row * width + x..row * width + x + w]);
             }
-            if let Ok(mut found) = scan_region(&crop, w, h, &mut remaining, true) {
+            let mut detected = scan_region(&crop, w, h, &mut remaining, true);
+            // Estimate illumination at the code's scale, not at the whole screen's scale.
+            if detected.is_err() && correction_budget > 0 {
+                for invert in [false, true] {
+                    let corrected = crate::vision_preprocess::flatten(&crop, w, h, invert);
+                    let limit = correction_budget.min(4000);
+                    let mut available = limit;
+                    detected = scan_region(&corrected, w, h, &mut available, true);
+                    correction_budget -= limit - available;
+                    if detected.is_ok() || correction_budget == 0 {
+                        break;
+                    }
+                }
+            }
+            if let Ok(mut found) = detected {
                 for p in &mut found.corners {
                     p.x += x as f64;
                     p.y += y as f64;
@@ -365,8 +380,16 @@ fn scan_region(
                 0.,
                 0.,
             ];
-            let initial = ellipse_seed(initial, &points, extent);
-            (cost(&initial, &points, &format.radii()), format, initial)
+            // UI edges and a blurred logo can distort the hull ellipse. Keep the
+            // axis-aligned seed when it explains the ring pixels more accurately.
+            let estimated = ellipse_seed(initial, &points, extent);
+            let radii = format.radii();
+            let initial = if cost(&estimated, &points, &radii) < cost(&initial, &points, &radii) {
+                estimated
+            } else {
+                initial
+            };
+            (cost(&initial, &points, &radii), format, initial)
         })
         .collect();
     candidates.sort_by(|a, b| a.0.total_cmp(&b.0));
@@ -451,7 +474,9 @@ fn scan_format(
             }
         }
     }
-    if score > format.stroke.powi(2) / 5. {
+    // Blur widens the ink footprint beyond the ideal printed stroke. This is
+    // only a proposal gate: header, ECC and CRC still decide acceptance.
+    if score > format.stroke.powi(2) / 3. {
         return None;
     }
     decode_pose(gray, width, height, bit_threshold, format, &p)

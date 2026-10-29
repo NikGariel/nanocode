@@ -7,7 +7,7 @@ on:
       tag:
         description: Existing version tag to rebuild
         required: true
-        default: v0.2.2
+        default: v0.2.3
         type: string
 env:
   RELEASE_TAG: ${{ inputs.tag || github.ref_name }}

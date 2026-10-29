@@ -2,6 +2,12 @@
 
 Localized release and usage guidance: [language index](README.md).
 
+## 0.2.3
+
+- Read the reported monitor capture with the landing N intact: estimate illumination per detected region, retain the better of bounding-box and hull geometry seeds, and allow for blurred arc width before full ECC/CRC validation.
+- Confirm a first camera detection at 960-pixel analysis resolution immediately, while retaining duty limits and camera shutdown.
+- Add a private raw-frame replay check through the real web worker; user camera images are not distributed.
+
 ## 0.2.2
 
 - Exclude the safe logo centre from the first geometry/palette fit on illumination-corrected fallback frames.
