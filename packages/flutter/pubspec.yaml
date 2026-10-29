@@ -1,5 +1,5 @@
 name: nanocode
-version: 0.2.1
+version: 0.2.2
 description: Experimental branded circular visual codes, generated and read locally through Rust FFI.
 homepage: https://github.com/NikGariel/nanocode
 repository: https://github.com/NikGariel/nanocode

@@ -1,3 +1,6 @@
+## 0.2.2
+Fix logo-aware screen reading in the shared core. Dart API and encoded format unchanged.
+
 ## 0.2.1
 Faster shared Rust reader with bilinear sampling and local illumination correction. Encoded format and Dart API unchanged. Camera scheduling remains the host application’s responsibility.
 

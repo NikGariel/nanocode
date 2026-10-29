@@ -6,10 +6,10 @@ const binary=await readFile(process.argv[2]||'packages/js/nanocode.wasm');
 const api=await loadNanoCode(binary);
 const {instance:{exports:e}}=await WebAssembly.instantiate(binary,{});
 const fixtures=[];
-function code(format,dark=false){
- const data=new TextEncoder().encode('ID000123'),p=e.nc_alloc(8),q=e.nc_alloc(384*384);
- try{new Uint8Array(e.memory.buffer).set(data,p);e.nc_render_ex(p,8,format,384,0x00a6a1,0x77dddd,dark?0x101010:0xffffff,q,384*384);return new Uint8Array(e.memory.buffer).slice(q,q+384*384);}
- finally{e.nc_free(p,8);e.nc_free(q,384*384);}
+function code(format,dark=false,payload='ID000123'){
+ const data=new TextEncoder().encode(payload),p=e.nc_alloc(data.length),q=e.nc_alloc(384*384);
+ try{new Uint8Array(e.memory.buffer).set(data,p);e.nc_render_ex(p,data.length,format,384,0x00a6a1,0x77dddd,dark?0x101010:0xffffff,q,384*384);return new Uint8Array(e.memory.buffer).slice(q,q+384*384);}
+ finally{e.nc_free(p,data.length);e.nc_free(q,384*384);}
 }
 function monitor(tile){
  const w=960,h=640,g=new Uint8Array(w*h).fill(44);
@@ -32,14 +32,22 @@ for(const format of [1,2,3,4])for(const dark of [false,true]){
 }
 const base=code(2);
 fixtures.push({name:'close-up',format:2,gray:base,width:384,height:384});
-for(const [name,fn] of [
+// Exact N polygon from the landing page, rasterized independently of its SVG.
+const logo=[[-.13,.12],[-.13,-.12],[-.075,-.12],[.075,.055],[.075,-.12],[.13,-.12],[.13,.12],[.075,.12],[-.075,-.055],[-.075,.12]];
+function inside(x,y){let hit=false;for(let i=0,j=logo.length-1;i<logo.length;j=i++){
+ const [a,b]=logo[i],[c,d]=logo[j];if((b>y)!==(d>y)&&x<(c-a)*(y-b)/(d-b)+a)hit=!hit;
+}return hit;}
+const branded=Uint8Array.from(base,(v,i)=>inside(2*(i%384)/384-1,2*Math.floor(i/384)/384-1)?46:v);
+fixtures.push({name:'landing-N',format:2,gray:branded,width:384,height:384});
+fixtures.push({name:'monitor-landing-N',format:2,...monitor(branded)});
+for(const withLogo of [false,true])for(const [name,fn] of [
  ['exposure-gradient',(v,x,y)=>v*(.45+.55*x/383)],
  ['screen-banding',(v,x,y)=>v*(.72+.20*Math.sin(y/13))],
  ['moire',(v,x,y)=>v+18*Math.sin(x*2.3+y*.8)+12*Math.cos(y*2.1)],
  ['washed-out',(v)=>55+v*.65],
 ]){
- const gray=Uint8Array.from(base,(v,i)=>Math.max(0,Math.min(255,Math.round(fn(v,i%384,Math.floor(i/384))))));
- fixtures.push({name,format:2,gray:blur(gray,384,384),width:384,height:384});
+ const gray=Uint8Array.from(withLogo?branded:base,(v,i)=>Math.max(0,Math.min(255,Math.round(fn(v,i%384,Math.floor(i/384))))));
+ fixtures.push({name:(withLogo?'N-':'')+name,format:2,gray:blur(gray,384,384),width:384,height:384});
 }
 fixtures.push({name:'blank',gray:new Uint8Array(640*480).fill(128),width:640,height:480});
 fixtures.push({name:'stripes-no-code',gray:Uint8Array.from({length:640*480},(_,i)=>[30,130,240][Math.floor(i%640/9)%3]),width:640,height:480});

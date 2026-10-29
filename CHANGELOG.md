@@ -2,6 +2,12 @@
 
 Localized release and usage guidance: [language index](README.md).
 
+## 0.2.2
+
+- Exclude the safe logo centre from the first geometry/palette fit on illumination-corrected fallback frames.
+- Match the illumination envelope to arc thickness so larger codes with display bands do not acquire artificial ink.
+- Add the exact landing-page N logo to the benchmark and regression tests, including blur/banding at 256, 384 and 512 pixels.
+
 ## 0.2.1
 
 - Faster markerless geometry fitting and protected-header-first orientation search; bilinear sampling.

@@ -1,3 +1,5 @@
+Includes the 0.2.1 speed/power improvements plus a fix for logos under screen banding: corrected-image passes exclude the centre before geometry fitting, and the local illumination envelope follows arc thickness. The exact landing-page N is regression-tested at three sizes with blur and bands.
+
 Scanner performance update. Encoded S/M/L/XL and legacy v1 compatibility are unchanged.
 
 - Faster geometry fitting and protected-header-first orientation search, plus bilinear sampling.

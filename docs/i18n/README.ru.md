@@ -13,7 +13,7 @@ NanoCode — открытый экспериментальный формат к
 
 ## Статус и установка
 
-Версия 0.2.1 содержит генератор и считыватель на Rust, C ABI и пакет JavaScript/WebAssembly. В репозитории есть адаптеры Apple, Android и Dart. Публикации в общедоступных реестрах пакетов пока нет: используйте исходники или файлы релизов, когда они доступны. Наличие workflow не означает успешную сборку платформы; перед внедрением проверяйте результаты CI и релиза.
+Версия 0.2.2 содержит генератор и считыватель на Rust, C ABI и пакет JavaScript/WebAssembly. В репозитории есть адаптеры Apple, Android и Dart. Публикации в общедоступных реестрах пакетов пока нет: используйте исходники или файлы релизов, когда они доступны. Наличие workflow не означает успешную сборку платформы; перед внедрением проверяйте результаты CI и релиза.
 
 ## Локальный запуск
 
@@ -54,7 +54,7 @@ npm run dev
 ### Web / JavaScript
 
 ```
-npm install ./nikgariel-nanocode-0.2.1.tgz
+npm install ./nikgariel-nanocode-0.2.2.tgz
 ```
 
 ```js
@@ -73,7 +73,7 @@ if (result) console.log(result.bytes, result.formatName);
 ### Node.js
 
 ```
-npm install ./nikgariel-nanocode-0.2.1.tgz
+npm install ./nikgariel-nanocode-0.2.2.tgz
 ```
 
 ```js
@@ -109,7 +109,7 @@ if let result = try NanoCode.scan(gray, width: width, height: height) {
 // Add the extracted release Maven repository to settings.gradle:
 maven { url = uri("../nanocode-maven") }
 // app/build.gradle:
-implementation("dev.nanocode:nanocode:0.2.1")
+implementation("dev.nanocode:nanocode:0.2.2")
 ```
 
 ```kotlin

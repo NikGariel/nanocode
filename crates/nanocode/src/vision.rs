@@ -184,7 +184,7 @@ pub fn scan(gray: &[u8], width: usize, height: usize) -> Result<Detection, Error
     {
         return Err(Error::Invalid);
     }
-    if let Ok(found) = scan_pass(gray, width, height, 14000, 6000) {
+    if let Ok(found) = scan_pass(gray, width, height, 14000, 6000, false) {
         return Ok(found);
     }
     let min = gray.iter().copied().min().unwrap_or(0);
@@ -196,7 +196,7 @@ pub fn scan(gray: &[u8], width: usize, height: usize) -> Result<Detection, Error
     // Inverting first also handles a dark quiet zone. Every attempt still validates CRC.
     for invert in [false, true] {
         let corrected = crate::vision_preprocess::flatten(gray, width, height, invert);
-        if let Ok(found) = scan_pass(&corrected, width, height, 4000, 2000) {
+        if let Ok(found) = scan_pass(&corrected, width, height, 4000, 2000, true) {
             return Ok(found);
         }
     }
@@ -208,9 +208,16 @@ fn scan_pass(
     height: usize,
     whole_budget: usize,
     mut remaining: usize,
+    exclude_logo_first: bool,
 ) -> Result<Detection, Error> {
     // Preserve the fast path for clean generated images and a close-up camera view.
-    if let Ok(found) = scan_region(gray, width, height, &mut { whole_budget }, false) {
+    if let Ok(found) = scan_region(
+        gray,
+        width,
+        height,
+        &mut { whole_budget },
+        exclude_logo_first,
+    ) {
         return Ok(found);
     }
     for region in crate::vision_regions::proposals(gray, width, height) {

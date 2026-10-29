@@ -13,7 +13,7 @@ NanoCode はブランドアプリ向けの、オープンで実験的な円形2D
 
 ## 状態と導入
 
-0.2.1 には Rust の生成器と読取器、C ABI、JavaScript/WebAssembly パッケージ、Apple・Android・Dart アダプターがあります。公開レジストリには未公開です。ソースまたは利用可能なリリースファイルを使ってください。ワークフローの存在はビルド成功を意味しません。採用前に CI とリリース結果を確認してください。
+0.2.2 には Rust の生成器と読取器、C ABI、JavaScript/WebAssembly パッケージ、Apple・Android・Dart アダプターがあります。公開レジストリには未公開です。ソースまたは利用可能なリリースファイルを使ってください。ワークフローの存在はビルド成功を意味しません。採用前に CI とリリース結果を確認してください。
 
 ## ローカル起動
 
@@ -54,7 +54,7 @@ npm run dev
 ### Web / JavaScript
 
 ```
-npm install ./nikgariel-nanocode-0.2.1.tgz
+npm install ./nikgariel-nanocode-0.2.2.tgz
 ```
 
 ```js
@@ -73,7 +73,7 @@ if (result) console.log(result.bytes, result.formatName);
 ### Node.js
 
 ```
-npm install ./nikgariel-nanocode-0.2.1.tgz
+npm install ./nikgariel-nanocode-0.2.2.tgz
 ```
 
 ```js
@@ -109,7 +109,7 @@ if let result = try NanoCode.scan(gray, width: width, height: height) {
 // Add the extracted release Maven repository to settings.gradle:
 maven { url = uri("../nanocode-maven") }
 // app/build.gradle:
-implementation("dev.nanocode:nanocode:0.2.1")
+implementation("dev.nanocode:nanocode:0.2.2")
 ```
 
 ```kotlin

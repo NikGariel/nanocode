@@ -13,7 +13,7 @@ NanoCode 是一种面向品牌应用的开放、实验性环形二维编码格�
 
 ## 状态与安装
 
-0.2.1 版本包含 Rust 生成器和读取器、C ABI 以及 JavaScript/WebAssembly 包。仓库还提供 Apple、Android 和 Dart 适配器。目前尚未发布到公共包注册表，请使用源码或可用的发行版文件。存在构建工作流并不代表平台构建已经通过；采用前请检查 CI 和发行结果。
+0.2.2 版本包含 Rust 生成器和读取器、C ABI 以及 JavaScript/WebAssembly 包。仓库还提供 Apple、Android 和 Dart 适配器。目前尚未发布到公共包注册表，请使用源码或可用的发行版文件。存在构建工作流并不代表平台构建已经通过；采用前请检查 CI 和发行结果。
 
 ## 本地运行
 
@@ -54,7 +54,7 @@ npm run dev
 ### Web / JavaScript
 
 ```
-npm install ./nikgariel-nanocode-0.2.1.tgz
+npm install ./nikgariel-nanocode-0.2.2.tgz
 ```
 
 ```js
@@ -73,7 +73,7 @@ if (result) console.log(result.bytes, result.formatName);
 ### Node.js
 
 ```
-npm install ./nikgariel-nanocode-0.2.1.tgz
+npm install ./nikgariel-nanocode-0.2.2.tgz
 ```
 
 ```js
@@ -109,7 +109,7 @@ if let result = try NanoCode.scan(gray, width: width, height: height) {
 // Add the extracted release Maven repository to settings.gradle:
 maven { url = uri("../nanocode-maven") }
 // app/build.gradle:
-implementation("dev.nanocode:nanocode:0.2.1")
+implementation("dev.nanocode:nanocode:0.2.2")
 ```
 
 ```kotlin

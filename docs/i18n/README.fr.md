@@ -13,7 +13,7 @@ NanoCode est un format ouvert et expérimental de code 2D circulaire pour les ap
 
 ## État et installation
 
-La version 0.2.1 comprend générateur et lecteur Rust, ABI C et paquet JavaScript/WebAssembly. Des adaptateurs Apple, Android et Dart sont présents. Aucun registre public n’est encore publié : utilisez les sources ou les fichiers de version disponibles. La présence d’un workflow ne prouve pas une compilation réussie ; vérifiez CI et les versions avant intégration.
+La version 0.2.2 comprend générateur et lecteur Rust, ABI C et paquet JavaScript/WebAssembly. Des adaptateurs Apple, Android et Dart sont présents. Aucun registre public n’est encore publié : utilisez les sources ou les fichiers de version disponibles. La présence d’un workflow ne prouve pas une compilation réussie ; vérifiez CI et les versions avant intégration.
 
 ## Exécution locale
 
@@ -54,7 +54,7 @@ Le même moteur cible WebAssembly et Rust/C natif. macOS ARM64 et Web ont été 
 ### Web / JavaScript
 
 ```
-npm install ./nikgariel-nanocode-0.2.1.tgz
+npm install ./nikgariel-nanocode-0.2.2.tgz
 ```
 
 ```js
@@ -73,7 +73,7 @@ if (result) console.log(result.bytes, result.formatName);
 ### Node.js
 
 ```
-npm install ./nikgariel-nanocode-0.2.1.tgz
+npm install ./nikgariel-nanocode-0.2.2.tgz
 ```
 
 ```js
@@ -109,7 +109,7 @@ if let result = try NanoCode.scan(gray, width: width, height: height) {
 // Add the extracted release Maven repository to settings.gradle:
 maven { url = uri("../nanocode-maven") }
 // app/build.gradle:
-implementation("dev.nanocode:nanocode:0.2.1")
+implementation("dev.nanocode:nanocode:0.2.2")
 ```
 
 ```kotlin

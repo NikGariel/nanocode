@@ -5,7 +5,9 @@ pub(crate) fn flatten(gray: &[u8], width: usize, height: usize, invert: bool) ->
         .iter()
         .map(|&v| if invert { 255 - v } else { v })
         .collect();
-    let radius = (width.min(height) / 48).clamp(3, 24);
+    // Just exceed half the widest rendered stroke, including camera blur. A
+    // larger envelope would flatten narrow display bands into artificial ink.
+    let radius = (width.min(height) / 80 + 1).clamp(3, 24);
     let mut horizontal = vec![0u8; gray.len()];
     let mut envelope = vec![0u8; gray.len()];
     let mut queue = vec![0usize; width.max(height)];

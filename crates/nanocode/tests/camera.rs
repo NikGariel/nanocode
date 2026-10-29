@@ -109,3 +109,68 @@ fn monitor_exposure_gradient_and_refresh_bands() {
         }
     }
 }
+
+#[test]
+fn actual_landing_n_logo() {
+    let polygon = [
+        (-0.13, 0.12),
+        (-0.13, -0.12),
+        (-0.075, -0.12),
+        (0.075, 0.055),
+        (0.075, -0.12),
+        (0.13, -0.12),
+        (0.13, 0.12),
+        (0.075, 0.12),
+        (-0.075, -0.055),
+        (-0.075, 0.12),
+    ];
+    for size in [256, 384, 512] {
+        let mut image = family::render_gray(b"ORBIT:EVT:042", size, 2, Palette::default()).unwrap();
+        for y in 0..size {
+            for x in 0..size {
+                let px = 2. * x as f64 / size as f64 - 1.;
+                let py = 2. * y as f64 / size as f64 - 1.;
+                let mut inside = false;
+                for i in 0..polygon.len() {
+                    let (a, b) = polygon[i];
+                    let (c, d) = polygon[(i + polygon.len() - 1) % polygon.len()];
+                    if (b > py) != (d > py) && px < (c - a) * (py - b) / (d - b) + a {
+                        inside = !inside;
+                    }
+                }
+                if inside {
+                    image[y * size + x] = 46;
+                }
+            }
+        }
+        for bands in [false, true] {
+            let mut frame = image.clone();
+            if bands {
+                for y in 0..size {
+                    for x in 0..size {
+                        frame[y * size + x] = (image[y * size + x] as f64
+                            * (0.72 + 0.20 * (y as f64 / 13.).sin()))
+                        .round() as u8;
+                    }
+                }
+                let source = frame.clone();
+                for y in 0..size {
+                    for x in 0..size {
+                        let mut sum = 0u32;
+                        for dy in -1isize..=1 {
+                            for dx in -1isize..=1 {
+                                let yy = (y as isize + dy).clamp(0, size as isize - 1) as usize;
+                                let xx = (x as isize + dx).clamp(0, size as isize - 1) as usize;
+                                sum += source[yy * size + xx] as u32;
+                            }
+                        }
+                        frame[y * size + x] = ((sum + 4) / 9) as u8;
+                    }
+                }
+            }
+            let d = scan(&frame, size, size)
+                .unwrap_or_else(|e| panic!("landing N size={size} bands={bands}: {e:?}"));
+            assert_eq!(d.payload, b"ORBIT:EVT:042");
+        }
+    }
+}
