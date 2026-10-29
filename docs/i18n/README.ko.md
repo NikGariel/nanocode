@@ -13,7 +13,7 @@ NanoCode는 브랜드 앱을 위한 개방형 실험적 원형 2D 코드 형식�
 
 ## 상태와 설치
 
-0.2.3에는 Rust 생성기와 판독기, C ABI, JavaScript/WebAssembly 패키지 및 Apple·Android·Dart 어댑터가 있습니다. 공개 패키지 레지스트리에는 아직 게시하지 않았습니다. 소스나 제공되는 릴리스 파일을 사용하세요. 워크플로가 있다고 플랫폼 빌드가 성공한 것은 아닙니다. 도입 전 CI와 릴리스 결과를 확인하세요.
+0.3.0에는 Rust 생성기와 판독기, C ABI, JavaScript/WebAssembly 패키지 및 Apple·Android·Dart 어댑터가 있습니다. 공개 패키지 레지스트리에는 아직 게시하지 않았습니다. 소스나 제공되는 릴리스 파일을 사용하세요. 워크플로가 있다고 플랫폼 빌드가 성공한 것은 아닙니다. 도입 전 CI와 릴리스 결과를 확인하세요.
 
 ## 로컬 실행
 
@@ -41,7 +41,7 @@ npm run dev
 
 ## 색상과 중앙 로고
 
-불투명 sRGB 호 색상 두 개와 배경을 지정하세요. assess()는 구별 가능성을 평가하고 backgrounds()는 중립 배경을 제안합니다. 세 쌍의 회색조 차이 중 최솟값은 35/255 이상, 권장은 55 이상입니다. 색조가 달라도 밝기가 비슷하면 불안정합니다. 균일한 배경과 모든 고리를 유지하세요. JavaScript logoDataUrl은 약 1 MB 이하 PNG·JPEG·WebP를 양축 −0.18부터 +0.18의 중앙 정사각형에 삽입합니다. 호와 바깥 여백을 가리지 마세요.
+불투명 sRGB 호 색상 두 개와 배경을 지정하세요. assess()는 구별 가능성을 평가하고 backgrounds()는 중립 배경을 제안합니다. 세 쌍의 회색조 차이 중 최솟값은 35/255 이상, 권장은 55 이상입니다. 색조가 달라도 밝기가 비슷하면 불안정합니다. 균일한 배경과 모든 고리를 유지하세요. JavaScript logoDataUrl은 약 1 MB 이하 PNG·JPEG·WebP를 양축 −0.18부터 +0.18의 중앙 정사각형에 삽입합니다. 호와 바깥 여백을 가리지 마세요. secondaryColors(primary, background)는 기본 색상의 밝고 어두운 변형을 밝기 차이 순으로 최대 8개 제안하며, 모두 현재 배경에서 55/255 이상을 충족합니다. 빈 목록이면 기본 색상이나 배경을 바꿔야 합니다. assess()는 부적합(35 미만), 주의(35–54), 추천(55 이상)을 구분합니다. 이는 휴리스틱이며 흐림, 반사, 인쇄 색상 변화에서의 판독을 보장하지 않습니다.
 
 ## 카메라 통합
 
@@ -54,7 +54,7 @@ npm run dev
 ### Web / JavaScript
 
 ```
-npm install ./nikgariel-nanocode-0.2.3.tgz
+npm install ./nikgariel-nanocode-0.3.0.tgz
 ```
 
 ```js
@@ -64,6 +64,8 @@ const svg = nc.svg('ORBIT:EVT:042', {
   one: '#00a6a1', zero: '#77dddd', background: '#ffffff'
 });
 document.querySelector('#code').innerHTML = svg;
+const secondary = nc.secondaryColors('#00a6a1', '#ffffff');
+const advice = nc.assess({one:'#00a6a1', zero:secondary[0].color, background:'#ffffff'});
 const backgrounds = nc.backgrounds('#00a6a1', '#77dddd');
 // In a Worker: packed grayscale, dimensions 32..2048.
 const result = nc.scan(gray, width, height);
@@ -73,7 +75,7 @@ if (result) console.log(result.bytes, result.formatName);
 ### Node.js
 
 ```
-npm install ./nikgariel-nanocode-0.2.3.tgz
+npm install ./nikgariel-nanocode-0.3.0.tgz
 ```
 
 ```js
@@ -96,6 +98,8 @@ unzip nanocode-apple.zip -d NanoCode
 import Foundation
 import NanoCode
 let svg = try NanoCode.svg(Data("ORBIT:EVT:042".utf8))
+let secondary = try NanoCode.secondaryColors(one: 0x00a6a1, background: 0xffffff)
+let advice = NanoCode.assess(one: 0x00a6a1, zero: secondary[0], background: 0xffffff)
 let backgrounds = try NanoCode.backgrounds(one: 0x00a6a1, zero: 0x77dddd)
 // Background queue; tightly packed camera Y-plane, without row padding.
 if let result = try NanoCode.scan(gray, width: width, height: height) {
@@ -109,12 +113,14 @@ if let result = try NanoCode.scan(gray, width: width, height: height) {
 // Add the extracted release Maven repository to settings.gradle:
 maven { url = uri("../nanocode-maven") }
 // app/build.gradle:
-implementation("dev.nanocode:nanocode:0.2.3")
+implementation("dev.nanocode:nanocode:0.3.0")
 ```
 
 ```kotlin
 import dev.nanocode.NanoCode
 val svg = NanoCode.svg("ORBIT:EVT:042".toByteArray(Charsets.UTF_8))
+val secondary = NanoCode.secondaryColors(0x00a6a1, 0xffffff)
+val advice = NanoCode.assess(0x00a6a1, secondary[0], 0xffffff)
 val backgrounds = NanoCode.backgrounds(0x00a6a1, 0x77dddd)
 // CameraX analysis executor: packed Y bytes, respect rowStride/pixelStride.
 val result = NanoCode.scan(gray, width, height)
@@ -135,6 +141,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:nanocode/nanocode.dart';
 final nc = NanoCode();
+final secondary = nc.secondaryColors(0x00a6a1, 0xffffff);
+final advice = nc.assess(0x00a6a1, secondary.first, 0xffffff);
 final svg = nc.svg(Uint8List.fromList(utf8.encode('ORBIT:EVT:042')));
 // Run camera analysis in an isolate. Not Flutter Web.
 final result = nc.scan(gray, width, height);

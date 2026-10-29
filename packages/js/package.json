@@ -1,6 +1,6 @@
 {
   "name":"@nikgariel/nanocode",
-  "version":"0.2.3",
+  "version":"0.3.0",
   "description":"Branded circular codes: Rust-powered generation and scanning for browsers and Node.js",
   "type":"module",
   "main":"./index.js",

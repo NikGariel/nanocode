@@ -13,15 +13,29 @@ let readHistory=[],lastGood=null,lastGoodAt=0;
 let frameCallback=null,lastVideoTime=-1,scanStarted=0,workStarted=0,grayBuffer=null,attempt=0,idleTimer=null;
 const capture=document.createElement('canvas');const ctx=capture.getContext('2d',{willReadFrequently:true});
 function error(e){$('error').textContent=e.message||String(e);}
+function swatches(id,items,target,empty){
+  const container=$(id);container.replaceChildren();
+  for(const item of items){
+    const button=document.createElement('button');button.type='button';button.className='color-choice';
+    const dot=document.createElement('span');dot.className='color-dot';dot.style.background=item.color;
+    button.append(dot,document.createTextNode(item.color.toUpperCase()));
+    button.title=item.score>=55?t.recommended:t.paletteLow;
+    button.setAttribute('aria-label',`${t[target]} ${item.color} · ${button.title}`);
+    button.setAttribute('aria-pressed',String($(target).value.toLowerCase()===item.color));
+    button.onclick=()=>{$(target).value=item.color;generate();};container.append(button);
+  }
+  if(!items.length)container.textContent=empty;
+}
 function generate(){
   const palette={one:$('one').value,zero:$('zero').value,background:$('background').value};
   try{
     const assessment=api.assess(palette);
-    $('palette-status').dataset.bad=String(!assessment.allowed);
-    $('palette-status').textContent=assessment.allowed?(assessment.recommended?t.paletteGood:t.paletteLow):t.paletteBad+': '+assessment.issues.join('. ');
-    $('backgrounds').replaceChildren();
-    for(const item of api.backgrounds(palette.one,palette.zero)){const button=document.createElement('button');button.style.background=item.color;button.title=`${item.color} · ${item.score}/255`;button.setAttribute('aria-label',`${t.swatch} ${item.color}`);button.onclick=()=>{$('background').value=item.color;generate();};$('backgrounds').append(button);}
-    if(!$('backgrounds').children.length)$('backgrounds').textContent=t.paletteBad;
+    $('palette-status').dataset.status=assessment.status;
+    const conflicts=[...(assessment.flags&2?[t.inkConflict]:[]),...(assessment.flags&4?[t.backgroundConflict]:[])];
+    $('palette-status').textContent=assessment.allowed?(assessment.recommended?t.paletteGood:t.paletteLow):t.paletteBad+': '+conflicts.join(' ');
+    swatches('secondary-colors',api.secondaryColors(palette.one,palette.background),'zero',t.secondaryEmpty);
+    swatches('backgrounds',api.backgrounds(palette.one,palette.zero),'background',t.paletteBad);
+    if(!assessment.allowed){svg='';$('code').replaceChildren();$('download').disabled=true;$('selftest').disabled=true;$('error').textContent='';return;}
     const format=Number($('format').value),f=api.formatFor($('payload').value,format);
     $('count').textContent=`${f.name} · ${f.rings} ${content.labels[14]} · ${new TextEncoder().encode($('payload').value).length} / ${f.capacity} ${content.labels[15]}`;
     svg=api.svg($('payload').value,{format,...palette,logoDataUrl});$('code').innerHTML=svg;$('error').textContent='';$('download').disabled=false;$('selftest').disabled=false;

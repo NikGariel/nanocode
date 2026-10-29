@@ -1,12 +1,8 @@
-Fixes the reported real monitor capture with the landing-page N intact. The reader corrects illumination at the detected code’s scale, compares geometry seeds, and accounts for blurred arcs before full ECC/CRC validation. The browser confirms the first detection immediately at higher resolution. Private capture replay now checks detection, tracking and disappearance through the web worker.
+Secondary-colour recommendations and clearer palette validation, with refreshed photographic demos.
 
-Scanner performance update. Encoded S/M/L/XL and legacy v1 compatibility are unchanged.
+- Rust/C, JavaScript/WASM, Swift, Android and Dart provide secondary-colour suggestions for a fixed primary colour and background. Every suggestion has at least 55/255 separation between all three luminance pairs.
+- Native assessment objects expose allowed/recommended states; JavaScript also returns incompatible/caution/recommended status. Palettes below 35/255 remain rejected; 35–54 produces a warning.
+- Generator suggestions update immediately. Conflict messages and examples are available in nine languages.
+- Photographic screen, building entrance and top-down scooter scenes keep real generated SVG codes and offer enlargement for scanning.
 
-- Faster geometry fitting and protected-header-first orientation search, plus bilinear sampling.
-- Local brightness correction for monitor gradients and refresh bands.
-- Web demo: fresh-frame processing, tracked regions, adaptive rest intervals, 720p/15 fps camera request, automatic camera shutdown after confirmation and idle pause after 60 seconds.
-- Regression tests and a reproducible synthetic benchmark: [measurements and limits](https://github.com/NikGariel/nanocode/blob/main/docs/SCANNER-PERFORMANCE.md).
-
-Assets include native C/Rust libraries, Web/WASM npm archive, Swift/XCFramework, Android AAR/Maven archive and native Flutter bundle. Installation guides are available in nine languages. SHA256SUMS.txt covers all binary assets.
-
-Experimental release. Desktop synthetic measurements are not an iPhone temperature or QR-parity guarantee. Native integrations must apply their own camera backpressure and lifecycle policy. Registry publication remains separate.
+Assets include native libraries, npm/WASM, Swift/XCFramework, Android AAR/Maven and Flutter bundles with SHA-256 checksums. Encoded formats and the v0.2.3 reader are unchanged. Experimental: palette scores are engineering heuristics, not scan-rate guarantees. Public package registry publication remains separate.

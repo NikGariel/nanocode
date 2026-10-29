@@ -5,17 +5,19 @@ npm ci
 npm run build
 npm run dev`;
 export const examples = [
-{ name:'Web / JavaScript', lang:'js', install:'npm install ./nikgariel-nanocode-0.2.3.tgz', code:`import {loadNanoCode} from '@nikgariel/nanocode';
+{ name:'Web / JavaScript', lang:'js', install:'npm install ./nikgariel-nanocode-0.3.0.tgz', code:`import {loadNanoCode} from '@nikgariel/nanocode';
 const nc = await loadNanoCode();
 const svg = nc.svg('ORBIT:EVT:042', {
   one: '#00a6a1', zero: '#77dddd', background: '#ffffff'
 });
 document.querySelector('#code').innerHTML = svg;
+const secondary = nc.secondaryColors('#00a6a1', '#ffffff');
+const advice = nc.assess({one:'#00a6a1', zero:secondary[0].color, background:'#ffffff'});
 const backgrounds = nc.backgrounds('#00a6a1', '#77dddd');
 // In a Worker: packed grayscale, dimensions 32..2048.
 const result = nc.scan(gray, width, height);
 if (result) console.log(result.bytes, result.formatName);`},
-{ name:'Node.js', lang:'js', install:'npm install ./nikgariel-nanocode-0.2.3.tgz', code:`import {readFile, writeFile} from 'node:fs/promises';
+{ name:'Node.js', lang:'js', install:'npm install ./nikgariel-nanocode-0.3.0.tgz', code:`import {readFile, writeFile} from 'node:fs/promises';
 import {loadNanoCode} from '@nikgariel/nanocode';
 const nc = await loadNanoCode(await readFile(
   new URL(import.meta.resolve('@nikgariel/nanocode/nanocode.wasm'))
@@ -24,13 +26,17 @@ await writeFile('code.svg', nc.svg('ORBIT:EVT:042'));`},
 { name:'iOS / iPadOS / macOS · Swift', lang:'swift', install:'unzip nanocode-apple.zip -d NanoCode\n# Xcode → Add Package Dependencies → Add Local → NanoCode', code:`import Foundation
 import NanoCode
 let svg = try NanoCode.svg(Data("ORBIT:EVT:042".utf8))
+let secondary = try NanoCode.secondaryColors(one: 0x00a6a1, background: 0xffffff)
+let advice = NanoCode.assess(one: 0x00a6a1, zero: secondary[0], background: 0xffffff)
 let backgrounds = try NanoCode.backgrounds(one: 0x00a6a1, zero: 0x77dddd)
 // Background queue; tightly packed camera Y-plane, without row padding.
 if let result = try NanoCode.scan(gray, width: width, height: height) {
     print(result.bytes, result.format)
 }`},
-{ name:'Android · Kotlin', lang:'kotlin', install:'// Add the extracted release Maven repository to settings.gradle:\nmaven { url = uri("../nanocode-maven") }\n// app/build.gradle:\nimplementation("dev.nanocode:nanocode:0.2.3")', code:`import dev.nanocode.NanoCode
+{ name:'Android · Kotlin', lang:'kotlin', install:'// Add the extracted release Maven repository to settings.gradle:\nmaven { url = uri("../nanocode-maven") }\n// app/build.gradle:\nimplementation("dev.nanocode:nanocode:0.3.0")', code:`import dev.nanocode.NanoCode
 val svg = NanoCode.svg("ORBIT:EVT:042".toByteArray(Charsets.UTF_8))
+val secondary = NanoCode.secondaryColors(0x00a6a1, 0xffffff)
+val advice = NanoCode.assess(0x00a6a1, secondary[0], 0xffffff)
 val backgrounds = NanoCode.backgrounds(0x00a6a1, 0x77dddd)
 // CameraX analysis executor: packed Y bytes, respect rowStride/pixelStride.
 val result = NanoCode.scan(gray, width, height)
@@ -40,6 +46,8 @@ if (result != null) println(result.text())
 import 'dart:typed_data';
 import 'package:nanocode/nanocode.dart';
 final nc = NanoCode();
+final secondary = nc.secondaryColors(0x00a6a1, 0xffffff);
+final advice = nc.assess(0x00a6a1, secondary.first, 0xffffff);
 final svg = nc.svg(Uint8List.fromList(utf8.encode('ORBIT:EVT:042')));
 // Run camera analysis in an isolate. Not Flutter Web.
 final result = nc.scan(gray, width, height);

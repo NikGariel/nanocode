@@ -1,3 +1,6 @@
+## 0.3.0
+Add secondaryColors() and assess() with allowed/recommended flags. Bundle the matching core and retain palette symbols on Apple platforms.
+
 ## 0.2.3
 Fix logo-aware screen reading in the shared core. Dart API and encoded format unchanged.
 

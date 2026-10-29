@@ -13,7 +13,7 @@ NanoCode — открытый экспериментальный формат к
 
 ## Статус и установка
 
-Версия 0.2.3 содержит генератор и считыватель на Rust, C ABI и пакет JavaScript/WebAssembly. В репозитории есть адаптеры Apple, Android и Dart. Публикации в общедоступных реестрах пакетов пока нет: используйте исходники или файлы релизов, когда они доступны. Наличие workflow не означает успешную сборку платформы; перед внедрением проверяйте результаты CI и релиза.
+Версия 0.3.0 содержит генератор и считыватель на Rust, C ABI и пакет JavaScript/WebAssembly. В репозитории есть адаптеры Apple, Android и Dart. Публикации в общедоступных реестрах пакетов пока нет: используйте исходники или файлы релизов, когда они доступны. Наличие workflow не означает успешную сборку платформы; перед внедрением проверяйте результаты CI и релиза.
 
 ## Локальный запуск
 
@@ -41,7 +41,7 @@ npm run dev
 
 ## Цвета и логотип в центре
 
-Задайте два непрозрачных цвета дуг sRGB и фон. assess() проверяет их различимость; backgrounds() предлагает нейтральные фоны. Минимальная из трёх попарных разниц яркости должна быть не меньше 35/255; рекомендуется от 55. Разные оттенки с близкой яркостью ненадёжны. Фон должен быть однородным, все кольца — видимыми. Параметр JavaScript logoDataUrl встраивает PNG, JPEG или WebP в центральный квадрат от −0.18 до +0.18 по обеим осям, до примерно 1 МБ. Не перекрывайте дуги и не обрезайте внешнее поле.
+Задайте два непрозрачных цвета дуг sRGB и фон. assess() проверяет их различимость; backgrounds() предлагает нейтральные фоны. Минимальная из трёх попарных разниц яркости должна быть не меньше 35/255; рекомендуется от 55. Разные оттенки с близкой яркостью ненадёжны. Фон должен быть однородным, все кольца — видимыми. Параметр JavaScript logoDataUrl встраивает PNG, JPEG или WebP в центральный квадрат от −0.18 до +0.18 по обеим осям, до примерно 1 МБ. Не перекрывайте дуги и не обрезайте внешнее поле. secondaryColors(primary, background) предлагает до восьми светлых и тёмных вариантов основного цвета, отсортированных по различию яркости; каждый вариант имеет запас не менее 55/255 с текущим фоном. Пустой список означает, что нужно изменить основной цвет или фон. assess() различает несовместимую палитру (ниже 35), малый запас (35–54) и рекомендуемую (от 55). Это оценка для считывателя, а не гарантия при размытии, бликах или изменении цвета при печати.
 
 ## Подключение камеры
 
@@ -54,7 +54,7 @@ npm run dev
 ### Web / JavaScript
 
 ```
-npm install ./nikgariel-nanocode-0.2.3.tgz
+npm install ./nikgariel-nanocode-0.3.0.tgz
 ```
 
 ```js
@@ -64,6 +64,8 @@ const svg = nc.svg('ORBIT:EVT:042', {
   one: '#00a6a1', zero: '#77dddd', background: '#ffffff'
 });
 document.querySelector('#code').innerHTML = svg;
+const secondary = nc.secondaryColors('#00a6a1', '#ffffff');
+const advice = nc.assess({one:'#00a6a1', zero:secondary[0].color, background:'#ffffff'});
 const backgrounds = nc.backgrounds('#00a6a1', '#77dddd');
 // In a Worker: packed grayscale, dimensions 32..2048.
 const result = nc.scan(gray, width, height);
@@ -73,7 +75,7 @@ if (result) console.log(result.bytes, result.formatName);
 ### Node.js
 
 ```
-npm install ./nikgariel-nanocode-0.2.3.tgz
+npm install ./nikgariel-nanocode-0.3.0.tgz
 ```
 
 ```js
@@ -96,6 +98,8 @@ unzip nanocode-apple.zip -d NanoCode
 import Foundation
 import NanoCode
 let svg = try NanoCode.svg(Data("ORBIT:EVT:042".utf8))
+let secondary = try NanoCode.secondaryColors(one: 0x00a6a1, background: 0xffffff)
+let advice = NanoCode.assess(one: 0x00a6a1, zero: secondary[0], background: 0xffffff)
 let backgrounds = try NanoCode.backgrounds(one: 0x00a6a1, zero: 0x77dddd)
 // Background queue; tightly packed camera Y-plane, without row padding.
 if let result = try NanoCode.scan(gray, width: width, height: height) {
@@ -109,12 +113,14 @@ if let result = try NanoCode.scan(gray, width: width, height: height) {
 // Add the extracted release Maven repository to settings.gradle:
 maven { url = uri("../nanocode-maven") }
 // app/build.gradle:
-implementation("dev.nanocode:nanocode:0.2.3")
+implementation("dev.nanocode:nanocode:0.3.0")
 ```
 
 ```kotlin
 import dev.nanocode.NanoCode
 val svg = NanoCode.svg("ORBIT:EVT:042".toByteArray(Charsets.UTF_8))
+val secondary = NanoCode.secondaryColors(0x00a6a1, 0xffffff)
+val advice = NanoCode.assess(0x00a6a1, secondary[0], 0xffffff)
 val backgrounds = NanoCode.backgrounds(0x00a6a1, 0x77dddd)
 // CameraX analysis executor: packed Y bytes, respect rowStride/pixelStride.
 val result = NanoCode.scan(gray, width, height)
@@ -135,6 +141,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:nanocode/nanocode.dart';
 final nc = NanoCode();
+final secondary = nc.secondaryColors(0x00a6a1, 0xffffff);
+final advice = nc.assess(0x00a6a1, secondary.first, 0xffffff);
 final svg = nc.svg(Uint8List.fromList(utf8.encode('ORBIT:EVT:042')));
 // Run camera analysis in an isolate. Not Flutter Web.
 final result = nc.scan(gray, width, height);

@@ -12,9 +12,16 @@ typedef _ScanN = Int32 Function(Pointer<Uint8>, Size, Size, Pointer<Uint8>, Size
 typedef _Scan = int Function(Pointer<Uint8>, int, int, Pointer<Uint8>, int, Pointer<Double>, Pointer<Uint32>);
 typedef _ScoreN = Int32 Function(Uint32, Uint32, Uint32);
 typedef _Score = int Function(int, int, int);
+typedef _FlagsN = Uint32 Function(Uint32, Uint32, Uint32);
 typedef _BgN = Int32 Function(Uint32, Uint32, Pointer<Uint32>, Size);
 typedef _Bg = int Function(int, int, Pointer<Uint32>, int);
 
+class PaletteAssessment {
+  final int score, flags;
+  PaletteAssessment(this.score, this.flags);
+  bool get allowed => flags == 0;
+  bool get recommended => allowed && score >= 55;
+}
 class NanoCodeException implements Exception {
   final int code;
   NanoCodeException(this.code);
@@ -36,6 +43,8 @@ class NanoCode {
   late final _Scan _scan = library.lookupFunction<_ScanN, _Scan>('nc_scan_ex');
   late final _Score _score = library.lookupFunction<_ScoreN, _Score>('nc_palette_score');
   late final _Bg _backgrounds = library.lookupFunction<_BgN, _Bg>('nc_backgrounds');
+  late final _Bg _secondaryColors = library.lookupFunction<_BgN, _Bg>('nc_secondary_colors');
+  late final _Score _flags = library.lookupFunction<_FlagsN, _Score>('nc_palette_flags');
   NanoCode({DynamicLibrary? library}) : library = library ?? _open();
   static DynamicLibrary _open() {
     if (Platform.isIOS || Platform.isMacOS) return DynamicLibrary.process();
@@ -69,6 +78,19 @@ class NanoCode {
       if (n == -3) return null;
       if (n < 0) throw NanoCodeException(n);
       return Detection(Uint8List.fromList(output.asTypedList(n)), meta[0], meta[1], List<double>.from(corners.asTypedList(8)));
+    });
+  }
+  PaletteAssessment assess(int one, int zero, int background) {
+    if ([one, zero, background].any((c) => c < 0 || c > 0xffffff)) return PaletteAssessment(0, 1);
+    return PaletteAssessment(_score(one, zero, background), _flags(one, zero, background));
+  }
+  List<int> secondaryColors(int one, [int background = 0xffffff]) {
+    if ([one, background].any((c) => c < 0 || c > 0xffffff)) throw ArgumentError('Invalid RGB');
+    return using((arena) {
+      final output = arena<Uint32>(8);
+      final n = _secondaryColors(one, background, output, 8);
+      if (n < 0) throw NanoCodeException(n);
+      return List<int>.from(output.asTypedList(n));
     });
   }
   int paletteScore(int one, int zero, int background) => _score(one, zero, background);

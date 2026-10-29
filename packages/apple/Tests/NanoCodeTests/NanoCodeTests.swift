@@ -6,6 +6,11 @@ final class NanoCodeTests: XCTestCase {
         XCTAssertThrowsError(try NanoCode.svg(Data(repeating: 1, count: 41)))
         XCTAssertThrowsError(try NanoCode.svg(Data(), one: 0, zero: 0, background: 0))
         XCTAssertFalse(try NanoCode.backgrounds(one: 0x00a6a1, zero: 0x77dddd).isEmpty)
+        let colours = try NanoCode.secondaryColors(one: 0x00a6a1)
+        XCTAssertFalse(colours.isEmpty)
+        XCTAssertTrue(colours.allSatisfy { NanoCode.assess(one: 0x00a6a1, zero: $0, background: 0xffffff).recommended })
+        XCTAssertFalse(NanoCode.assess(one: 0, zero: 0x222222, background: 0xffffff).allowed)
+        XCTAssertFalse(NanoCode.assess(one: 0, zero: 0x232323, background: 0xffffff).recommended)
         XCTAssertNil(try NanoCode.scan(Data(repeating: 255, count: 128*128), width: 128, height: 128))
         XCTAssertThrowsError(try NanoCode.scan(Data(), width: 128, height: 128))
     }

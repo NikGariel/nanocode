@@ -39,3 +39,12 @@ extern "C" JNIEXPORT jintArray JNICALL Java_dev_nanocode_NanoCode_backgrounds(JN
     jintArray a=e->NewIntArray(n);if(!a)return nullptr;
     e->SetIntArrayRegion(a,0,n,reinterpret_cast<jint*>(colors));return a;
 }
+
+extern "C" JNIEXPORT jintArray JNICALL Java_dev_nanocode_NanoCode_secondaryColors(JNIEnv* e,jclass,jint one,jint background){
+    uint32_t colors[8];int n=nc_secondary_colors(one,background,colors,8);
+    if(n<0){fail(e,"Invalid palette");return nullptr;}
+    jintArray a=e->NewIntArray(n);if(!a)return nullptr;
+    e->SetIntArrayRegion(a,0,n,reinterpret_cast<jint*>(colors));return a;
+}
+
+extern "C" JNIEXPORT jint JNICALL Java_dev_nanocode_NanoCode_paletteFlags(JNIEnv*,jclass,jint one,jint zero,jint bg){return nc_palette_flags(one,zero,bg);}

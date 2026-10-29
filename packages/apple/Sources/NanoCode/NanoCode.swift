@@ -9,6 +9,12 @@ public struct NanoCodeDetection {
     public let corners: [Double]
     public var text: String? { String(data: bytes, encoding: .utf8) }
 }
+public struct PaletteAssessment {
+    public let score: Int32
+    public let flags: UInt32
+    public var allowed: Bool { flags == 0 }
+    public var recommended: Bool { allowed && score >= 55 }
+}
 /// Thread-safe codec. Call scan on a background queue; camera capture belongs to your app.
 public enum NanoCode {
     public static func svg(_ data: Data, format: UInt32 = 0,
@@ -45,6 +51,15 @@ public enum NanoCode {
         let count = nc_backgrounds(one, zero, &colors, colors.count)
         guard count >= 0 else { throw NanoCodeError.native(count) }
         return Array(colors.prefix(Int(count)))
+    }
+    public static func secondaryColors(one: UInt32, background: UInt32 = 0xffffff) throws -> [UInt32] {
+        var colors = [UInt32](repeating: 0, count: 8)
+        let count = nc_secondary_colors(one, background, &colors, colors.count)
+        guard count >= 0 else { throw NanoCodeError.native(count) }
+        return Array(colors.prefix(Int(count)))
+    }
+    public static func assess(one: UInt32, zero: UInt32, background: UInt32) -> PaletteAssessment {
+        PaletteAssessment(score: nc_palette_score(one, zero, background), flags: nc_palette_flags(one, zero, background))
     }
     public static func paletteScore(one: UInt32, zero: UInt32, background: UInt32) -> Int32 {
         nc_palette_score(one, zero, background)

@@ -8,8 +8,9 @@ const scenes=['screen','building','scooter'];
 const payloads=['ORBIT:EVT:042','ATELIER:DOOR:07','LOOP:RIDE:024'];
 function choose(name){
  const i=scenes.indexOf(name);if(i<0)return;
+ document.querySelector('.scene').dataset.photo=name;
  document.querySelectorAll('[data-scene]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.scene===name)));
- document.querySelector('#scene-image').src=new URL(`./scene-${name}.svg`,import.meta.url);
+ document.querySelector('#scene-image').src=new URL(`./scene-${name}.jpg`+new URL(import.meta.url).search,import.meta.url);
  document.querySelector('#scene-image').alt=l.scenes[i][0];
  document.querySelector('#scene-code').innerHTML=brand(api.svg(payloads[i]));
  document.querySelector('#scene-category').textContent=['ORBIT / EVENTS','ATELIER / SPACES','LOOP / MOBILITY'][i];
@@ -30,5 +31,6 @@ const dialog=document.createElement('dialog');dialog.className='code-dialog';
 const close=document.createElement('button');close.textContent='×';close.setAttribute('aria-label',l.nav[0]+' ←');
 const full=document.createElement('div');close.onclick=()=>dialog.close();dialog.append(close,full);document.body.append(dialog);
 function enlarge(){full.innerHTML=tile.innerHTML;dialog.showModal();}
+document.querySelector('#enlarge-code').onclick=enlarge;
 tile.onclick=enlarge;tile.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();enlarge();}};
 dialog.onclick=e=>{if(e.target===dialog)dialog.close();};

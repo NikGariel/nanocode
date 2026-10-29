@@ -2,6 +2,14 @@
 
 Localized release and usage guidance: [language index](README.md).
 
+## 0.3.0
+
+- Add secondary-colour suggestions in Rust, C ABI, JavaScript/WASM, Swift, Android and Dart. Suggestions retain the primary hue as tints/shades and meet a 55/255 minimum pairwise luminance margin for the selected background.
+- Expose palette assessments in native adapters and explicit incompatible/caution/recommended states in JavaScript. Keep the existing hard rejection below 35/255.
+- Generator: live secondary-colour choices, localized conflict explanations, visible low-margin warnings and blocked export for incompatible palettes.
+- Replace scenario illustrations with photographic scenes and correctly positioned live codes, including a rider-view scooter. Fix image aspect ratio and add a visible code enlargement control.
+- Update API examples, guidance and UI in all nine languages. Encoded formats and scanner behavior are unchanged.
+
 ## 0.2.3
 
 - Read the reported monitor capture with the landing N intact: estimate illumination per detected region, retain the better of bounding-box and hull geometry seeds, and allow for blurred arc width before full ECC/CRC validation.

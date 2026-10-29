@@ -36,11 +36,15 @@ export async function loadNanoCode(source = new URL('./nanocode.wasm'+new URL(im
     },
     assess(p={}) {
       const c=palette(p),flags=api.nc_palette_flags(...c),score=api.nc_palette_score(...c);
-      return {flags,score,allowed:flags===0,recommended:flags===0&&score>=55,issues:[...(flags&2?['Arc colors have insufficient brightness separation']:[]),...(flags&4?['Background brightness is too close to an arc color']:[])]};
+      return {flags,score,allowed:flags===0,recommended:flags===0&&score>=55,status:flags?'incompatible':score<55?'caution':'recommended',issues:[...(flags&2?['Arc colors have insufficient brightness separation']:[]),...(flags&4?['Background brightness is too close to an arc color']:[]),...(!flags&&score<55?['Low brightness margin; scanning may be unreliable']:[])]};
     },
     backgrounds(one,zero) {
       const a=color(one),b=color(zero),n=api.nc_backgrounds(a,b,0,0);if(!n)return [];
       const p=alloc(n*4);try{api.nc_backgrounds(a,b,p,n);return Array.from(new Uint32Array(api.memory.buffer,p,n),value=>({color:hex(value),score:api.nc_palette_score(a,b,value)}));}finally{api.nc_free(p,n*4);}
+    },
+    secondaryColors(one,background=defaults.background) {
+      const a=color(one),b=color(background),n=api.nc_secondary_colors(a,b,0,0);if(!n)return [];
+      const p=alloc(n*4);try{api.nc_secondary_colors(a,b,p,n);return Array.from(new Uint32Array(api.memory.buffer,p,n),value=>({color:hex(value),score:api.nc_palette_score(a,value,b)}));}finally{api.nc_free(p,n*4);}
     },
     svg(data,{format=0,logoDataUrl,...p}={}) {
       if(!Number.isInteger(format)||format<0||format>4)throw new Error('Unknown format');

@@ -56,3 +56,31 @@ console.log('JavaScript API: auto size, UTF-8 byte capacity, palette suggestions
   console.log(`WASM monitor scene: located and decoded in ${(performance.now()-begin).toFixed(0)} ms (synthetic, this machine)`);
  }finally{e.nc_free(p,payload.length);e.nc_free(pixels,384*384);}
 }
+
+// Recommendation contract: fixed background, ranked useful colours, ABI sizing and guards.
+for(const one of ['#00a6a1','#15352f','#cc4466','#ffffff','#000000']){
+ for(const background of ['#ffffff','#101010','#888888']){
+  const choices=engine.secondaryColors(one,background);
+  assert(choices.length<=8);
+  assert(choices.every((item,i)=>engine.assess({one,zero:item.color,background}).recommended&&(!i||choices[i-1].score>=item.score)));
+ }
+}
+assert.deepEqual(engine.secondaryColors('#ffffff','#ffffff'),[]);
+assert.throws(()=>engine.secondaryColors('#12345'));
+for(const [zero,status] of [['#222222','incompatible'],['#232323','caution'],['#363636','caution'],['#373737','recommended']]){
+ const a=engine.assess({one:'#000000',zero,background:'#ffffff'});
+ assert.equal(a.status,status);
+ if(status==='caution')assert(a.issues.length>0);
+}
+{
+ const n=e.nc_secondary_colors(0x00a6a1,0xffffff,0,0),p=e.nc_alloc(32);
+ try{
+  assert(n>0&&n<=8);new Uint32Array(e.memory.buffer,p,8).fill(0xdeadbeef);
+  assert.equal(e.nc_secondary_colors(0x00a6a1,0xffffff,p,n-1),n);
+  assert(new Uint32Array(e.memory.buffer,p,8).every(v=>v===0xdeadbeef));
+  assert.equal(e.nc_secondary_colors(0x00a6a1,0xffffff,p,8),n);
+  const colours=Array.from(new Uint32Array(e.memory.buffer,p,n));
+  assert(colours.every(z=>e.nc_palette_score(0x00a6a1,z,0xffffff)>=55));
+ }finally{e.nc_free(p,32);}
+}
+console.log('Secondary inks: contrast, empty results, warning thresholds and ABI capacity guard passed');

@@ -13,7 +13,7 @@ NanoCode is an open, experimental circular 2D code format for branded applicatio
 
 ## Status and installation
 
-Version 0.2.3 contains a Rust generator and reader, a C ABI and a JavaScript/WebAssembly package. Apple, Android and Dart adapters live in this repository. Public package registries have not been published yet: use the source or downloadable release artifacts when available. A workflow definition is not evidence that a platform build passed; check the release and CI results before adoption.
+Version 0.3.0 contains a Rust generator and reader, a C ABI and a JavaScript/WebAssembly package. Apple, Android and Dart adapters live in this repository. Public package registries have not been published yet: use the source or downloadable release artifacts when available. A workflow definition is not evidence that a platform build passed; check the release and CI results before adoption.
 
 ## Run locally
 
@@ -41,7 +41,7 @@ Auto chooses the smallest format that fits. Capacity is measured in bytes, not c
 
 ## Colours and centre logo
 
-Specify two opaque sRGB arc colours and a background. assess() evaluates their separation; backgrounds() suggests suitable neutral backgrounds. The minimum of the three pairwise grayscale differences must be at least 35/255; at least 55 is recommended. Similar-brightness hues do not work reliably. Keep a uniform background and all rings visible. The JavaScript logoDataUrl option embeds PNG, JPEG or WebP in a centred square from −0.18 to +0.18 on each axis (maximum about 1 MB). Do not cover arcs or crop the outer margin.
+Specify two opaque sRGB arc colours and a background. assess() evaluates their separation; backgrounds() suggests suitable neutral backgrounds. The minimum of the three pairwise grayscale differences must be at least 35/255; at least 55 is recommended. Similar-brightness hues do not work reliably. Keep a uniform background and all rings visible. The JavaScript logoDataUrl option embeds PNG, JPEG or WebP in a centred square from −0.18 to +0.18 on each axis (maximum about 1 MB). Do not cover arcs or crop the outer margin. secondaryColors(primary, background) suggests up to eight lighter/darker variants of the primary colour, ranked by brightness separation; every suggestion scores at least 55/255 with the current background. An empty list means change the primary colour or background. assess() distinguishes incompatible (below 35), caution (35–54), and recommended (55+) palettes. These are camera-oriented heuristics, not guarantees under blur, glare or printing changes.
 
 ## Camera integration
 
@@ -54,7 +54,7 @@ The common engine targets WebAssembly and native Rust/C. macOS ARM64 and Web hav
 ### Web / JavaScript
 
 ```
-npm install ./nikgariel-nanocode-0.2.3.tgz
+npm install ./nikgariel-nanocode-0.3.0.tgz
 ```
 
 ```js
@@ -64,6 +64,8 @@ const svg = nc.svg('ORBIT:EVT:042', {
   one: '#00a6a1', zero: '#77dddd', background: '#ffffff'
 });
 document.querySelector('#code').innerHTML = svg;
+const secondary = nc.secondaryColors('#00a6a1', '#ffffff');
+const advice = nc.assess({one:'#00a6a1', zero:secondary[0].color, background:'#ffffff'});
 const backgrounds = nc.backgrounds('#00a6a1', '#77dddd');
 // In a Worker: packed grayscale, dimensions 32..2048.
 const result = nc.scan(gray, width, height);
@@ -73,7 +75,7 @@ if (result) console.log(result.bytes, result.formatName);
 ### Node.js
 
 ```
-npm install ./nikgariel-nanocode-0.2.3.tgz
+npm install ./nikgariel-nanocode-0.3.0.tgz
 ```
 
 ```js
@@ -96,6 +98,8 @@ unzip nanocode-apple.zip -d NanoCode
 import Foundation
 import NanoCode
 let svg = try NanoCode.svg(Data("ORBIT:EVT:042".utf8))
+let secondary = try NanoCode.secondaryColors(one: 0x00a6a1, background: 0xffffff)
+let advice = NanoCode.assess(one: 0x00a6a1, zero: secondary[0], background: 0xffffff)
 let backgrounds = try NanoCode.backgrounds(one: 0x00a6a1, zero: 0x77dddd)
 // Background queue; tightly packed camera Y-plane, without row padding.
 if let result = try NanoCode.scan(gray, width: width, height: height) {
@@ -109,12 +113,14 @@ if let result = try NanoCode.scan(gray, width: width, height: height) {
 // Add the extracted release Maven repository to settings.gradle:
 maven { url = uri("../nanocode-maven") }
 // app/build.gradle:
-implementation("dev.nanocode:nanocode:0.2.3")
+implementation("dev.nanocode:nanocode:0.3.0")
 ```
 
 ```kotlin
 import dev.nanocode.NanoCode
 val svg = NanoCode.svg("ORBIT:EVT:042".toByteArray(Charsets.UTF_8))
+val secondary = NanoCode.secondaryColors(0x00a6a1, 0xffffff)
+val advice = NanoCode.assess(0x00a6a1, secondary[0], 0xffffff)
 val backgrounds = NanoCode.backgrounds(0x00a6a1, 0x77dddd)
 // CameraX analysis executor: packed Y bytes, respect rowStride/pixelStride.
 val result = NanoCode.scan(gray, width, height)
@@ -135,6 +141,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:nanocode/nanocode.dart';
 final nc = NanoCode();
+final secondary = nc.secondaryColors(0x00a6a1, 0xffffff);
+final advice = nc.assess(0x00a6a1, secondary.first, 0xffffff);
 final svg = nc.svg(Uint8List.fromList(utf8.encode('ORBIT:EVT:042')));
 // Run camera analysis in an isolate. Not Flutter Web.
 final result = nc.scan(gray, width, height);

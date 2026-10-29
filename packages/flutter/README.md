@@ -4,4 +4,4 @@
 
 Extract `nanocode-flutter-x86_64.tar.gz` and use a path dependency pointing to its `flutter` directory. The release archive includes Android, iOS, macOS and x86_64 Linux/Windows libraries. Source checkout alone lacks binaries; assemble with `scripts/package-flutter.py` after native builds. Flutter Web uses JS/WASM instead of dart:ffi. This package is not published on pub.dev.
 
-Experimental version 0.2.3. See the localized guide for API examples, formats, palettes, permissions and security. Registry publication and real-device testing are separate from source availability. MIT.
+Experimental version 0.3.0. See the localized guide for API examples, formats, palettes, permissions and security. Registry publication and real-device testing are separate from source availability. MIT.

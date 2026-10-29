@@ -10,6 +10,19 @@ public final class NanoCode {
     public static native Detection scan(byte[] gray, int width, int height);
     public static native int paletteScore(int one, int zero, int background);
     public static native int[] backgrounds(int one, int zero);
+    public static native int[] secondaryColors(int one, int background);
+    public static native int paletteFlags(int one, int zero, int background);
+    public static PaletteAssessment assess(int one, int zero, int background) {
+        return new PaletteAssessment(paletteScore(one, zero, background), paletteFlags(one, zero, background));
+    }
+    public static final class PaletteAssessment {
+        public final int score, flags;
+        public final boolean allowed, recommended;
+        private PaletteAssessment(int score, int flags) {
+            this.score = score; this.flags = flags;
+            this.allowed = flags == 0; this.recommended = allowed && score >= 55;
+        }
+    }
     public static final class Detection {
         public final byte[] bytes;
         public final int format, corrected;

@@ -155,3 +155,64 @@ fn central_brand_marks() {
         }
     }
 }
+
+#[test]
+fn secondary_recommendations_and_warning_boundaries() {
+    for (distance, allowed, recommended) in [
+        (34, false, false),
+        (35, true, false),
+        (54, true, false),
+        (55, true, true),
+    ] {
+        let a = Palette {
+            one: 0,
+            zero: distance * 0x010101,
+            background: 0xffffff,
+        }
+        .assess();
+        assert_eq!(a.allowed(), allowed);
+        assert_eq!(a.recommended(), recommended);
+    }
+    assert!(palette::secondary_colors(0xffffff, 0xffffff).is_empty());
+    assert!(palette::secondary_colors(0x1000000, 0xffffff).is_empty());
+    for one in [0x00a6a1, 0x15352f, 0xcc4466, 0xffdd22, 0xffffff, 0x000000] {
+        for background in [0xffffff, 0x101010, 0x888888] {
+            let options = palette::secondary_colors(one, background);
+            assert!(options.len() <= 8);
+            assert_eq!(
+                options.is_empty(),
+                palette::luminance(one).abs_diff(palette::luminance(background)) < 55
+            );
+            for pair in options.windows(2) {
+                assert!(pair[0].1.score >= pair[1].1.score);
+            }
+            for &(zero, a) in &options {
+                assert!(a.recommended());
+                assert_eq!(
+                    Palette {
+                        one,
+                        zero,
+                        background
+                    }
+                    .assess()
+                    .score,
+                    a.score
+                );
+            }
+            if let Some(&(zero, _)) = options.first() {
+                let gray = family::render_gray(
+                    b"BRAND:01",
+                    384,
+                    2,
+                    Palette {
+                        one,
+                        zero,
+                        background,
+                    },
+                )
+                .unwrap();
+                assert_eq!(scan(&gray, 384, 384).unwrap().payload, b"BRAND:01");
+            }
+        }
+    }
+}

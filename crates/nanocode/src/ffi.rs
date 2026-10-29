@@ -170,6 +170,23 @@ pub unsafe extern "C" fn nc_backgrounds(one: u32, zero: u32, out: *mut u32, cap:
     list.len() as i32
 }
 /// # Safety
+/// out is null for sizing, or points to cap writable uint32 values. No partial writes.
+#[no_mangle]
+pub unsafe extern "C" fn nc_secondary_colors(
+    one: u32,
+    background: u32,
+    out: *mut u32,
+    cap: usize,
+) -> i32 {
+    let list = palette::secondary_colors(one, background);
+    if !out.is_null() && cap >= list.len() {
+        for (i, (color, _)) in list.iter().enumerate() {
+            *out.add(i) = *color;
+        }
+    }
+    list.len() as i32
+}
+/// # Safety
 /// Valid, non-overlapping buffers as for nc_svg. id=0 auto, 1..4 explicit. RGB is 0xRRGGBB.
 #[no_mangle]
 pub unsafe extern "C" fn nc_svg_ex(

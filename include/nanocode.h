@@ -38,6 +38,10 @@ uint32_t nc_palette_flags(uint32_t one, uint32_t zero, uint32_t background);
 /* Returns number of suggested backgrounds (possibly 0), best first. Query NULL,0.
  * Writes only if capacity is sufficient; capacity is in uint32 values. */
 int32_t nc_backgrounds(uint32_t one, uint32_t zero, uint32_t *out, size_t capacity);
+/* Up to 8 secondary inks for a fixed primary/background; score >=55, best first.
+ * Empty means change primary/background. Invalid RGB also returns 0.
+ * Query NULL,0; insufficient capacity returns required count without writing. */
+int32_t nc_secondary_colors(uint32_t one, uint32_t background, uint32_t *out, size_t capacity);
 /* SVG length query and no-NUL semantics match nc_svg. -5 rejects unsafe palette. */
 int32_t nc_svg_ex(const uint8_t *data, size_t len, uint32_t id,
     uint32_t one, uint32_t zero, uint32_t background, uint8_t *out, size_t capacity);

@@ -25,3 +25,19 @@ ja:['別のコードをスキャン','節電のためスキャンを一時停止
 ko:['다른 코드 스캔','절전을 위해 스캔을 일시 정지했습니다. 카메라를 켜서 다시 시도하세요.']
 };
 for(const [lang,[scanAgain,scanPaused]] of Object.entries(scanMessages))Object.assign(ui[lang],{scanAgain,scanPaused});
+
+const paletteMessages = {
+ en:['Primary colour','Secondary colour','Suggested secondary colours','Change the primary colour or background to get suggestions with enough brightness margin.','Low brightness margin: scanning may be unreliable. Choose a suggested colour.','The two arc colours are too close in brightness.','The background is too close in brightness to an arc colour.','Recommended','Enlarge code'],
+ ru:['Основной цвет','Второй цвет','Подходящие вторые цвета','Измените основной цвет или фон: для этой пары нет вариантов с достаточным запасом яркости.','Малый запас яркости: код может плохо считываться. Выберите один из предложенных цветов.','Цвета дуг слишком близки по яркости.','Фон слишком близок по яркости к одному из цветов дуг.','Рекомендуем','Увеличить код'],
+ 'zh-CN':['主色','辅助色','推荐辅助色','请更改主色或背景色；当前组合没有足够亮度余量的选项。','亮度余量较小，扫描可能不稳定。请选择推荐颜色。','两种弧线颜色的亮度过于接近。','背景与一种弧线颜色的亮度过于接近。','推荐','放大码'],
+ es:['Color principal','Color secundario','Colores secundarios sugeridos','Cambia el color principal o el fondo para obtener opciones con margen suficiente.','Poco margen de brillo: la lectura puede ser inestable. Elige un color sugerido.','Los colores de los arcos tienen un brillo demasiado parecido.','El fondo tiene un brillo demasiado parecido al de un arco.','Recomendado','Ampliar código'],
+ fr:['Couleur principale','Couleur secondaire','Couleurs secondaires proposées','Changez la couleur principale ou le fond pour obtenir une marge suffisante.','Faible marge de luminosité : la lecture peut être instable. Choisissez une couleur proposée.','Les couleurs des arcs ont une luminosité trop proche.','Le fond a une luminosité trop proche de celle d’un arc.','Recommandé','Agrandir le code'],
+ de:['Primärfarbe','Sekundärfarbe','Empfohlene Sekundärfarben','Primärfarbe oder Hintergrund ändern, um genügend Helligkeitsabstand zu erhalten.','Geringer Helligkeitsabstand: Scannen kann unzuverlässig sein. Wähle eine vorgeschlagene Farbe.','Die Bogenfarben sind in ihrer Helligkeit zu ähnlich.','Der Hintergrund ist einer Bogenfarbe in der Helligkeit zu ähnlich.','Empfohlen','Code vergrößern'],
+ 'pt-BR':['Cor principal','Cor secundária','Cores secundárias sugeridas','Altere a cor principal ou o fundo para obter opções com margem suficiente.','Pouca margem de brilho: a leitura pode ser instável. Escolha uma cor sugerida.','As cores dos arcos têm brilho muito parecido.','O fundo tem brilho muito parecido com o de um arco.','Recomendado','Ampliar código'],
+ ja:['メインカラー','サブカラー','推奨サブカラー','十分な明るさの差を確保するため、メインカラーまたは背景を変更してください。','明るさの余裕が小さく、読み取りが不安定になる場合があります。推奨色を選んでください。','円弧2色の明るさが近すぎます。','背景と円弧の明るさが近すぎます。','推奨','コードを拡大'],
+ ko:['기본 색상','보조 색상','추천 보조 색상','충분한 밝기 차이를 확보하려면 기본 색상이나 배경을 바꾸세요.','밝기 여유가 작아 스캔이 불안정할 수 있습니다. 추천 색상을 선택하세요.','두 호 색상의 밝기가 너무 비슷합니다.','배경과 호 색상의 밝기가 너무 비슷합니다.','추천','코드 확대']
+};
+for (const [lang,row] of Object.entries(paletteMessages)) {
+ const keys=['one','zero','secondaryColors','secondaryEmpty','paletteLow','inkConflict','backgroundConflict','recommended','enlarge'];
+ Object.assign(ui[lang],Object.fromEntries(keys.map((key,i)=>[key,row[i]])));
+}

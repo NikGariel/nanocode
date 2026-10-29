@@ -13,6 +13,8 @@ for(const f of api.formats){
  if(api.formatFor(new Uint8Array(f.capacity),f.id).capacity!==f.capacity)throw Error('Format failed');
 }
 if(api.assess({one:0,zero:0,background:0}).allowed)throw Error('Palette failed');
+const suggestions=api.secondaryColors('#00a6a1','#ffffff');
+if(!suggestions.length||!suggestions.every(s=>api.assess({one:'#00a6a1',zero:s.color,background:'#ffffff'}).recommended))throw Error('Packed recommendations failed');
 const dot='data:image/png;base64,iVBORw0KGgo=';
 if(!api.svg('BRAND:01',{logoDataUrl:dot}).includes('<image'))throw Error('Logo embedding failed');
 for(const url of ['https://example.com/logo.png','data:image/svg+xml;base64,PHN2Zz4=']){
