@@ -139,7 +139,7 @@ fn actual_landing_n_logo() {
                     }
                 }
                 if inside {
-                    image[y * size + x] = 46;
+                    image[y * size + x] = ((77 * 0x15 + 150 * 0x35 + 29 * 0x2f) >> 8) as u8;
                 }
             }
         }

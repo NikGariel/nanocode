@@ -37,7 +37,7 @@ const logo=[[-.13,.12],[-.13,-.12],[-.075,-.12],[.075,.055],[.075,-.12],[.13,-.1
 function inside(x,y){let hit=false;for(let i=0,j=logo.length-1;i<logo.length;j=i++){
  const [a,b]=logo[i],[c,d]=logo[j];if((b>y)!==(d>y)&&x<(c-a)*(y-b)/(d-b)+a)hit=!hit;
 }return hit;}
-const branded=Uint8Array.from(base,(v,i)=>inside(2*(i%384)/384-1,2*Math.floor(i/384)/384-1)?46:v);
+const branded=Uint8Array.from(base,(v,i)=>inside(2*(i%384)/384-1,2*Math.floor(i/384)/384-1)?((77*0x15+150*0x35+29*0x2f)>>8):v);
 fixtures.push({name:'landing-N',format:2,gray:branded,width:384,height:384});
 fixtures.push({name:'monitor-landing-N',format:2,...monitor(branded)});
 for(const withLogo of [false,true])for(const [name,fn] of [
