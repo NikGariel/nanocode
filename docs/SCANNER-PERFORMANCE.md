@@ -64,7 +64,7 @@ The subsequent user capture still failed in 0.2.2 despite the synthetic improvem
 
 The unchanged private 720×1280 capture now decodes ORBIT:EVT:042 (M) with no corrected bits, as does its 540×960 bilinear downsample. The 360×640 downsample still fails. The web scheduler therefore keeps the next frame at 960 pixels after a first detection, instead of reverting immediately to 640. This also avoids losing the first detection from the temporal confirmation window. Existing rest intervals and camera shutdown are preserved.
 
-In Node v21.7.3 on macOS ARM64, one replay through the actual browser worker took 49.8 ms for the 540×960 frame and 16.0 ms for tracked confirmation. A following blank image returned no detection. These are individual desktop measurements, not phone timing or an energy benchmark. All 21 synthetic benchmark outcomes and the existing Rust/JS tests pass. A live iPhone Safari retest is still required.
+In Node v21.7.3 on macOS ARM64, one replay through the actual browser worker took 49.8 ms for the 540×960 frame and 16.0 ms for tracked confirmation. A following blank image returned no detection. These are individual desktop measurements, not phone timing or an energy benchmark. All 21 synthetic benchmark outcomes and the existing Rust/JS tests pass. The user subsequently confirmed that v0.2.3 reads the landing N in live Safari on their iPhone. This confirms the reported case, not a general scan-rate or thermal claim.
 
 Private captures are intentionally absent from this repository. To replay a local image converted to headerless row-major 8-bit grayscale:
 
