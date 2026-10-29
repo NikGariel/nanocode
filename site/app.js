@@ -1,6 +1,7 @@
 import {loadNanoCode} from '../packages/js/index.js';
 import {ui} from './content/ui.mjs';
 import {containedFrame,projectedRing} from './scan-geometry.js';
+import {scanDelay,scanSize} from './scan-policy.js';
 import {locales} from './content/locales.mjs';
 const lang=document.documentElement.lang;
 const t=ui[lang]||ui.en, content=locales[lang]||locales.en;
@@ -9,6 +10,7 @@ const $=id=>document.getElementById(id);
 let api,svg='',stream=null,worker=null,busy=false,sequence=0,stable=0,last='',timer=null;
 let cameraRequest=0,deviceListRequest=0,cameraOpening=false;
 let readHistory=[],lastGood=null,lastGoodAt=0;
+let frameCallback=null,lastVideoTime=-1,scanStarted=0,workStarted=0,grayBuffer=null,attempt=0,idleTimer=null;
 const capture=document.createElement('canvas');const ctx=capture.getContext('2d',{willReadFrequently:true});
 function error(e){$('error').textContent=e.message||String(e);}
 function generate(){
@@ -25,7 +27,7 @@ function generate(){
     svg=api.svg($('payload').value,{format,...palette,logoDataUrl});$('code').innerHTML=svg;$('error').textContent='';$('download').disabled=false;$('selftest').disabled=false;
   }catch(e){svg='';$('code').replaceChildren();$('download').disabled=true;$('selftest').disabled=true;error(e);}
 }
-function luminance(image,w,h){capture.width=w;capture.height=h;ctx.drawImage(image,0,0,w,h);const rgba=ctx.getImageData(0,0,w,h).data;const gray=new Uint8Array(w*h);for(let i=0;i<gray.length;i++)gray[i]=(77*rgba[4*i]+150*rgba[4*i+1]+29*rgba[4*i+2])>>8;return gray;}
+function luminance(image,w,h){if(capture.width!==w)capture.width=w;if(capture.height!==h)capture.height=h;ctx.drawImage(image,0,0,w,h);const rgba=ctx.getImageData(0,0,w,h).data;const gray=grayBuffer?.byteLength===w*h?new Uint8Array(grayBuffer):new Uint8Array(w*h);grayBuffer=null;for(let i=0;i<gray.length;i++)gray[i]=(77*rgba[4*i]+150*rgba[4*i+1]+29*rgba[4*i+2])>>8;return gray;}
 function draw(result,w,h){
  const canvas=$('overlay');canvas.width=w;canvas.height=h;
  const box=containedFrame(w,h);
@@ -43,6 +45,9 @@ function stop(){
   ++cameraRequest;
   cameraOpening=false;
   clearTimeout(timer);
+  clearTimeout(idleTimer);
+  if(frameCallback!==null)$('video').cancelVideoFrameCallback?.(frameCallback);
+  frameCallback=null;lastVideoTime=-1;grayBuffer=null;attempt=0;
   stream?.getTracks().forEach(track=>track.stop());
   stream=null;
   $('save-frame').disabled=true;
@@ -95,11 +100,17 @@ async function start(){
   try{
     if(!navigator.mediaDevices?.getUserMedia)throw new Error(t.secure);
     const deviceId=$('camera-device').value;
-    const video={width:{ideal:1920},height:{ideal:1080},...(deviceId?{deviceId:{exact:deviceId}}:{facingMode:{ideal:'environment'}})};
+    const video={width:{ideal:1280},height:{ideal:720},frameRate:{ideal:15,max:24},...(deviceId?{deviceId:{exact:deviceId}}:{facingMode:{ideal:'environment'}})};
     const acquired=await navigator.mediaDevices.getUserMedia({video,audio:false});
     // Permission prompts can outlive a cancellation or a tab being hidden.
     if(request!==cameraRequest){acquired.getTracks().forEach(track=>track.stop());return;}
     stream=acquired;
+    // Optional camera controls must never prevent an otherwise supported stream.
+    const cameraTrack=acquired.getVideoTracks()[0],caps=cameraTrack.getCapabilities?.()||{};
+    const controls={};
+    if(caps.focusMode?.includes('continuous'))controls.focusMode='continuous';
+    if(caps.exposureMode?.includes('continuous'))controls.exposureMode='continuous';
+    if(Object.keys(controls).length)void cameraTrack.applyConstraints({advanced:[controls]}).catch(()=>{});
     $('save-frame').disabled=false;
     $('video').srcObject=acquired;
     await $('video').play();
@@ -115,10 +126,11 @@ async function start(){
       stop();$('result').textContent=t.noCamera;
       void refreshCameras();
     });
-    worker=new Worker(new URL('./worker.js',import.meta.url),{type:'module'});
+    worker=new Worker(new URL('./worker.js'+new URL(import.meta.url).search,import.meta.url),{type:'module'});
     worker.onmessage=({data})=>{
       if(request!==cameraRequest)return;
       busy=false;
+      grayBuffer=data.gray;
       if(data.error){error(data.error);stop();return;}
       const now=performance.now();
       const key=data.result?JSON.stringify([data.result.format,...data.result.bytes]):null;
@@ -133,10 +145,21 @@ async function start(){
         $('result').textContent=`${t.read}: ${lastGood.text||t.empty} · ${lastGood.formatName}`;
       }else show(data.result,capture.width,capture.height,stable>=2);
       $('timing').textContent=`${capture.width}×${capture.height} · ${data.ms.toFixed(0)} ms · ${t.confirmation} ${Math.min(stable,2)}/2`;
-
+      if(data.result&&stable>=2){
+        // A demo scan is a one-shot action. Release the camera and worker after
+        // confirmation, while retaining the exact processed frame and its pose.
+        const result=data.result,w=capture.width,h=capture.height,timing=$('timing').textContent;
+        stop();show(result,w,h,true);
+        const pen=$('overlay').getContext('2d');pen.globalCompositeOperation='destination-over';pen.drawImage(capture,0,0);pen.globalCompositeOperation='source-over';
+        $('timing').textContent=timing;
+        $('camera').textContent=t.scanAgain;
+        return;
+      }
+      scheduleScan(scanDelay(now-workStarted,now-scanStarted));
     };
     worker.onerror=event=>{if(request===cameraRequest){error(event.message);stop();}};
-    tick();
+    scanStarted=performance.now();scheduleScan(0);
+    idleTimer=setTimeout(()=>{if(request===cameraRequest){stop();$('result').textContent=t.scanPaused;}},60000);
     void refreshCameras();
   }catch(e){
     if(request!==cameraRequest)return;
@@ -151,7 +174,24 @@ $('camera-device').addEventListener('change',()=>{
   if(stream||cameraOpening){stop();void start();}
 });
 navigator.mediaDevices?.addEventListener('devicechange',()=>void refreshCameras());
-function tick(){if(!stream)return;const v=$('video');if(!busy&&v.videoWidth){const scale=Math.min(1,1280/Math.max(v.videoWidth,v.videoHeight));const w=Math.round(v.videoWidth*scale),h=Math.round(v.videoHeight*scale);const gray=luminance(v,w,h);busy=true;worker.postMessage({gray:gray.buffer,width:w,height:h,id:++sequence},[gray.buffer]);}timer=setTimeout(tick,100);}
+function scheduleScan(delay){
+  if(!stream)return;
+  timer=setTimeout(()=>{
+    if(!stream)return;
+    const v=$('video');
+    if(v.requestVideoFrameCallback)frameCallback=v.requestVideoFrameCallback(()=>{frameCallback=null;tick();});
+    else tick();
+  },delay);
+}
+function tick(){
+  if(!stream||busy)return;
+  const v=$('video');
+  if(!v.videoWidth||v.readyState<2||v.currentTime===lastVideoTime){scheduleScan(90);return;}
+  lastVideoTime=v.currentTime;workStarted=performance.now();
+  const {width:w,height:h}=scanSize(v.videoWidth,v.videoHeight,attempt++);
+  const gray=luminance(v,w,h);busy=true;
+  worker.postMessage({gray:gray.buffer,width:w,height:h,id:++sequence},[gray.buffer]);
+}
 async function scanBlob(blob){stop();const url=URL.createObjectURL(blob);try{const img=new Image();img.src=url;await img.decode();const scale=Math.min(1,1000/Math.max(img.width,img.height));const w=Math.round(img.width*scale),h=Math.round(img.height*scale);const gray=luminance(img,w,h);const result=api.scan(gray,w,h);show(result,w,h);const pen=$('overlay').getContext('2d');pen.globalCompositeOperation='destination-over';pen.drawImage(img,0,0,w,h);pen.globalCompositeOperation='source-over';if(!result)$('result').textContent=t.notFound;}finally{URL.revokeObjectURL(url);}}
 for(const id of ['payload','format','one','zero','background'])$(id).addEventListener('input',()=>api&&generate());$('camera').onclick=start;
 $('download').onclick=()=>{const url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));const a=document.createElement('a');a.href=url;a.download='nanocode.svg';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};

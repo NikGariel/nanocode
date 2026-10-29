@@ -16,7 +16,7 @@ afterEvaluate {
     publishing {
         publications { release(MavenPublication) {
             from components.release
-            groupId = 'dev.nanocode'; artifactId = 'nanocode'; version = '0.2.0'
+            groupId = 'dev.nanocode'; artifactId = 'nanocode'; version = '0.2.1'
             pom { name = 'NanoCode'; description = 'Circular visual code generator and reader'; url = 'https://github.com/NikGariel/nanocode'
                 licenses { license { name = 'MIT'; url = 'https://opensource.org/license/mit' } }
             }

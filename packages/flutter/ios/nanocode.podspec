@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'nanocode'
-  s.version = '0.2.0'
+  s.version = '0.2.1'
   s.summary = 'NanoCode native FFI'
   s.description = 'Experimental circular visual code generator and reader.'
   s.homepage = 'https://github.com/NikGariel/nanocode'

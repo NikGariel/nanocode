@@ -13,7 +13,7 @@ NanoCode はブランドアプリ向けの、オープンで実験的な円形2D
 
 ## 状態と導入
 
-0.2.0 には Rust の生成器と読取器、C ABI、JavaScript/WebAssembly パッケージ、Apple・Android・Dart アダプターがあります。公開レジストリには未公開です。ソースまたは利用可能なリリースファイルを使ってください。ワークフローの存在はビルド成功を意味しません。採用前に CI とリリース結果を確認してください。
+0.2.1 には Rust の生成器と読取器、C ABI、JavaScript/WebAssembly パッケージ、Apple・Android・Dart アダプターがあります。公開レジストリには未公開です。ソースまたは利用可能なリリースファイルを使ってください。ワークフローの存在はビルド成功を意味しません。採用前に CI とリリース結果を確認してください。
 
 ## ローカル起動
 
@@ -45,7 +45,7 @@ npm run dev
 
 ## カメラ統合
 
-読取器は連続したグレースケール画像を受け取ります。RGBA は (77R+150G+29B)>>8 で変換します。CameraX や AVFoundation の Y 平面は rowStride・pixelStride を考慮してコピーします。Worker または背景スレッドで処理し、古いフレームを捨て、検証済みの一致する2回の読取後に動作させます。デモはカメラ選択と動きの軽減に対応。ブラウザーには HTTPS または localhost と許可が必要です。画像は端末内に留まります。
+読取器は連続したグレースケール画像を受け取ります。RGBA は (77R+150G+29B)>>8 で変換します。CameraX や AVFoundation の Y 平面は rowStride・pixelStride を考慮してコピーします。Worker または背景スレッドで処理し、古いフレームを捨て、検証済みの一致する2回の読取後に動作させます。デモはカメラ選択と動きの軽減に対応。ブラウザーには HTTPS または localhost と許可が必要です。画像は端末内に留まります。 デモは1280×720・15fpsを要求し、新しいフレームを複数の解像度で解析し、検出領域を確認に再利用します。解析間に休止を設け、15秒後に頻度を下げ、確認後にカメラを停止し、60秒間結果がない場合は一時停止します。処理量は減りますが、端末温度を保証するものではありません。
 
 ## プラットフォームと例
 
@@ -54,7 +54,7 @@ npm run dev
 ### Web / JavaScript
 
 ```
-npm install ./nikgariel-nanocode-0.2.0.tgz
+npm install ./nikgariel-nanocode-0.2.1.tgz
 ```
 
 ```js
@@ -73,7 +73,7 @@ if (result) console.log(result.bytes, result.formatName);
 ### Node.js
 
 ```
-npm install ./nikgariel-nanocode-0.2.0.tgz
+npm install ./nikgariel-nanocode-0.2.1.tgz
 ```
 
 ```js
@@ -109,7 +109,7 @@ if let result = try NanoCode.scan(gray, width: width, height: height) {
 // Add the extracted release Maven repository to settings.gradle:
 maven { url = uri("../nanocode-maven") }
 // app/build.gradle:
-implementation("dev.nanocode:nanocode:0.2.0")
+implementation("dev.nanocode:nanocode:0.2.1")
 ```
 
 ```kotlin

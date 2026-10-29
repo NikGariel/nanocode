@@ -2,7 +2,16 @@
 
 Localized release and usage guidance: [language index](README.md).
 
-## 0.2.0 — unreleased
+## 0.2.1
+
+- Faster markerless geometry fitting and protected-header-first orientation search; bilinear sampling.
+- Local background-envelope correction for brightness gradients and screen refresh bands, without changing the encoded format.
+- Browser: fresh-frame callbacks, one frame in flight, reusable buffers, tracked-region confirmation and 640/960-pixel analysis.
+- Camera requests 720p/15 fps; completion-driven duty limits, slower search after 15 seconds, camera shutdown on confirmation and a 60-second idle cutoff.
+- Versioned site asset URLs prevent mixing cached workers/WASM with an updated page.
+- Reproducible synthetic benchmark, screen-degradation regression fixtures and worker/scheduling integration checks. See docs/SCANNER-PERFORMANCE.md.
+
+## 0.2.0
 
 - S/M/L/XL profiles: 8/16/24/40 bytes, 4/6/8/10 rings, automatic format detection.
 - Merged rounded arcs, configurable palettes, neutral-background recommendations and a safe centre for logos.

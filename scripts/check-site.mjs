@@ -22,7 +22,7 @@ for(const [lang,l] of Object.entries(locales)) {
   }
   for(const m of html.matchAll(/(?:href|src)="([^"#]+)(?:#[^"]*)?"/g)){
    const href=m[1];if(/^(https?:|data:|mailto:)/.test(href))continue;
-   const target=resolve(dirname(file),href);
+   const target=resolve(dirname(file),href.split("?")[0]);
    assert(target.startsWith(root+'/'),`Outside site: ${href}`);
    assert((await stat(target)).isFile(),`Missing: ${target}`);checked++;
   }
@@ -30,7 +30,7 @@ for(const [lang,l] of Object.entries(locales)) {
  }
  const md=await readFile(`docs/i18n/README.${lang}.md`,'utf8');
  assert.equal((md.match(/^## /gm)||[]).length,12);
- assert(md.includes('40')&&md.includes('0.2.0'));
+ assert(md.includes('40')&&md.includes(JSON.parse(await readFile('package.json')).version));
 }
 const sitemap=await readFile('dist/sitemap.xml','utf8');
 assert.equal((sitemap.match(/<loc>/g)||[]).length,Object.keys(locales).length*4);

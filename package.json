@@ -1,6 +1,6 @@
 {
   "name": "nanocode-workspace",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -12,9 +12,10 @@
     "build": "sh scripts/build-wasm.sh && node scripts/build-site.mjs",
     "build:site": "node scripts/build-site.mjs",
     "build:wasm": "sh scripts/build-wasm.sh",
-    "test": "cargo test --workspace --release && node scripts/test-wasm.mjs && node scripts/test-scan-geometry.mjs",
+    "test": "cargo test --workspace --release && node scripts/test-wasm.mjs && node scripts/test-scan-geometry.mjs && node scripts/test-scan-policy.mjs && node scripts/test-scan-worker.mjs",
     "test:core": "cargo test --workspace --release",
-    "test:wasm": "node scripts/test-wasm.mjs"
+    "test:wasm": "node scripts/test-wasm.mjs",
+    "bench:scanner": "node scripts/bench-scanner.mjs"
   },
   "devDependencies": {
     "esbuild": "0.25.12",

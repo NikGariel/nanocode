@@ -4,4 +4,4 @@
 
 Build from source: `sh scripts/build-apple.sh`; add `packages/apple` as a local Swift package. Release: extract `nanocode-apple.zip`, then add that folder in Xcode. iOS/iPadOS 13+, macOS 11+, device and simulator slices. Native camera capture uses AVFoundation and is not bundled.
 
-Experimental version 0.2.0. See the localized guide for API examples, formats, palettes, permissions and security. Registry publication and real-device testing are separate from source availability. MIT.
+Experimental version 0.2.1. See the localized guide for API examples, formats, palettes, permissions and security. Registry publication and real-device testing are separate from source availability. MIT.

@@ -13,7 +13,7 @@ NanoCode 是一种面向品牌应用的开放、实验性环形二维编码格�
 
 ## 状态与安装
 
-0.2.0 版本包含 Rust 生成器和读取器、C ABI 以及 JavaScript/WebAssembly 包。仓库还提供 Apple、Android 和 Dart 适配器。目前尚未发布到公共包注册表，请使用源码或可用的发行版文件。存在构建工作流并不代表平台构建已经通过；采用前请检查 CI 和发行结果。
+0.2.1 版本包含 Rust 生成器和读取器、C ABI 以及 JavaScript/WebAssembly 包。仓库还提供 Apple、Android 和 Dart 适配器。目前尚未发布到公共包注册表，请使用源码或可用的发行版文件。存在构建工作流并不代表平台构建已经通过；采用前请检查 CI 和发行结果。
 
 ## 本地运行
 
@@ -45,7 +45,7 @@ npm run dev
 
 ## 相机集成
 
-读取器接收紧密排列的灰度帧，而不是相机对象。RGBA 转换公式为 (77R+150G+29B)>>8。CameraX 或 AVFoundation 应按 rowStride 和 pixelStride 复制 Y 平面。在 Worker 或后台线程处理，丢弃过期帧，并在两次一致且校验通过的读取后执行操作。网页示例支持相机选择和减少动画。浏览器相机需要 HTTPS 或 localhost 以及用户授权。图像帧留在设备上。
+读取器接收紧密排列的灰度帧，而不是相机对象。RGBA 转换公式为 (77R+150G+29B)>>8。CameraX 或 AVFoundation 应按 rowStride 和 pixelStride 复制 Y 平面。在 Worker 或后台线程处理，丢弃过期帧，并在两次一致且校验通过的读取后执行操作。网页示例支持相机选择和减少动画。浏览器相机需要 HTTPS 或 localhost 以及用户授权。图像帧留在设备上。 演示请求1280×720、15帧/秒的视频，以不同分辨率分析新帧，并复用已定位区域进行确认。分析之间有休息间隔，15秒后降低频率，确认成功后关闭相机，60秒无结果则暂停。这些措施减少计算量，但不保证设备温度。
 
 ## 平台与示例
 
@@ -54,7 +54,7 @@ npm run dev
 ### Web / JavaScript
 
 ```
-npm install ./nikgariel-nanocode-0.2.0.tgz
+npm install ./nikgariel-nanocode-0.2.1.tgz
 ```
 
 ```js
@@ -73,7 +73,7 @@ if (result) console.log(result.bytes, result.formatName);
 ### Node.js
 
 ```
-npm install ./nikgariel-nanocode-0.2.0.tgz
+npm install ./nikgariel-nanocode-0.2.1.tgz
 ```
 
 ```js
@@ -109,7 +109,7 @@ if let result = try NanoCode.scan(gray, width: width, height: height) {
 // Add the extracted release Maven repository to settings.gradle:
 maven { url = uri("../nanocode-maven") }
 // app/build.gradle:
-implementation("dev.nanocode:nanocode:0.2.0")
+implementation("dev.nanocode:nanocode:0.2.1")
 ```
 
 ```kotlin

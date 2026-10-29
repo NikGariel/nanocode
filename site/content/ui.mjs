@@ -13,3 +13,15 @@ ko:['텍스트 또는 ID · UTF-8 최대 40바이트','자동 — 최소 형식'
 export const ui = Object.fromEntries(Object.entries(rows).map(([lang,row])=>{if(row.length!==keys.length)throw Error(`Incomplete UI: ${lang}`);return [lang,Object.fromEntries(keys.map((k,i)=>[k,row[i]]))];}));
 const cameraAuto={en:'Automatic — prefer rear camera',ru:'Автоматически — предпочтительно задняя','zh-CN':'自动 — 优先后置相机',es:'Automática — preferir trasera',fr:'Automatique — caméra arrière',de:'Automatisch — bevorzugt Rückkamera','pt-BR':'Automática — preferir traseira',ja:'自動 — 背面カメラ優先',ko:'자동 — 후면 카메라 우선'};
 for(const lang of Object.keys(ui))ui[lang].cameraAuto=cameraAuto[lang];
+const scanMessages={
+en:['Scan another code','Scanning paused to save power. Enable the camera to try again.'],
+ru:['Сканировать ещё','Сканирование приостановлено для экономии энергии. Включите камеру, чтобы повторить.'],
+'zh-CN':['扫描另一个码','为节省电量，扫描已暂停。启用相机即可重试。'],
+es:['Escanear otro código','Escaneo pausado para ahorrar energía. Activa la cámara para reintentar.'],
+fr:['Scanner un autre code','Scan en pause pour économiser la batterie. Activez la caméra pour réessayer.'],
+de:['Weiteren Code scannen','Zum Energiesparen pausiert. Kamera aktivieren, um es erneut zu versuchen.'],
+'pt-BR':['Ler outro código','Leitura pausada para economizar energia. Ative a câmera para tentar novamente.'],
+ja:['別のコードをスキャン','節電のためスキャンを一時停止しました。カメラを有効にして再試行してください。'],
+ko:['다른 코드 스캔','절전을 위해 스캔을 일시 정지했습니다. 카메라를 켜서 다시 시도하세요.']
+};
+for(const [lang,[scanAgain,scanPaused]] of Object.entries(scanMessages))Object.assign(ui[lang],{scanAgain,scanPaused});

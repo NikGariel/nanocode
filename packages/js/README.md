@@ -5,7 +5,7 @@ Branded circular codes, powered by the same Rust engine as the native libraries.
 Until a registry release is published, install the `.tgz` from a GitHub Release:
 
 ```sh
-npm install ./nikgariel-nanocode-0.2.0.tgz
+npm install ./nikgariel-nanocode-0.2.1.tgz
 ```
 
 ```js

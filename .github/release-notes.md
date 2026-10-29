@@ -1,7 +1,10 @@
-Experimental NanoCode SDK: S/M/L/XL circular codes, palette guidance, logo-safe centre and automatic image reading.
+Scanner performance update. Encoded S/M/L/XL and legacy v1 compatibility are unchanged.
 
-Documentation and examples in English, Russian, Simplified Chinese, Spanish, French, German, Brazilian Portuguese, Japanese and Korean are included in the repository and project website.
+- Faster geometry fitting and protected-header-first orientation search, plus bilinear sampling.
+- Local brightness correction for monitor gradients and refresh bands.
+- Web demo: fresh-frame processing, tracked regions, adaptive rest intervals, 720p/15 fps camera request, automatic camera shutdown after confirmation and idle pause after 60 seconds.
+- Regression tests and a reproducible synthetic benchmark: [measurements and limits](https://github.com/NikGariel/nanocode/blob/main/docs/SCANNER-PERFORMANCE.md).
 
-Assets: native Rust/C libraries and CLI by target; npm tarball with WASM; local Swift package with XCFramework; Android AAR and extracted-file Maven repository; native Flutter package (Android/iOS/macOS, x86_64 Windows/Linux). SHA256SUMS.txt covers every file.
+Assets include native C/Rust libraries, Web/WASM npm archive, Swift/XCFramework, Android AAR/Maven archive and native Flutter bundle. Installation guides are available in nine languages. SHA256SUMS.txt covers all binary assets.
 
-Registry publication is separate. Camera capture belongs to the host application. These builds do not establish production camera reliability; validate your devices, print process, lighting and viewing distance. Read the limitations and security guidance before use.
+Experimental release. Desktop synthetic measurements are not an iPhone temperature or QR-parity guarantee. Native integrations must apply their own camera backpressure and lifecycle policy. Registry publication remains separate.

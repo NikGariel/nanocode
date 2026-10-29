@@ -72,3 +72,40 @@ fn screen_with_blur_and_uneven_lighting() {
         );
     }
 }
+
+#[test]
+fn monitor_exposure_gradient_and_refresh_bands() {
+    for format in 1..=4 {
+        let size = 384;
+        let base = family::render_gray(b"ID000123", size, format, Palette::default()).unwrap();
+        for bands in [false, true] {
+            let mut frame = base.clone();
+            for y in 0..size {
+                for x in 0..size {
+                    let gain = if bands {
+                        0.72 + 0.20 * (y as f64 / 13.).sin()
+                    } else {
+                        0.45 + 0.55 * x as f64 / (size - 1) as f64
+                    };
+                    frame[y * size + x] = (base[y * size + x] as f64 * gain).round() as u8;
+                }
+            }
+            let original = frame.clone();
+            for y in 1..size - 1 {
+                for x in 1..size - 1 {
+                    let mut sum = 0u32;
+                    for yy in y - 1..=y + 1 {
+                        for xx in x - 1..=x + 1 {
+                            sum += original[yy * size + xx] as u32;
+                        }
+                    }
+                    frame[y * size + x] = (sum / 9) as u8;
+                }
+            }
+            let found = scan(&frame, size, size)
+                .unwrap_or_else(|e| panic!("format={format} bands={bands}: {e:?}"));
+            assert_eq!(found.payload, b"ID000123");
+            assert_eq!(found.format_id, format);
+        }
+    }
+}

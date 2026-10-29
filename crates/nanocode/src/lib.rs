@@ -3,6 +3,7 @@ pub mod family;
 mod ffi;
 pub mod palette;
 pub mod vision;
+mod vision_preprocess;
 mod vision_regions;
 use std::fmt::Write;
 pub const MAX_PAYLOAD: usize = 24;

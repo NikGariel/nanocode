@@ -13,7 +13,7 @@ NanoCode ist ein offenes, experimentelles Format für kreisförmige 2D-Codes in 
 
 ## Status und Installation
 
-Version 0.2.0 enthält Rust-Generator und -Leser, C-ABI und JavaScript/WebAssembly-Paket sowie Apple-, Android- und Dart-Adapter. Öffentliche Paketregistrierungen sind noch nicht veröffentlicht. Nutze Quellen oder verfügbare Release-Dateien. Ein Workflow allein belegt keinen erfolgreichen Plattform-Build; prüfe CI und Release-Ergebnisse.
+Version 0.2.1 enthält Rust-Generator und -Leser, C-ABI und JavaScript/WebAssembly-Paket sowie Apple-, Android- und Dart-Adapter. Öffentliche Paketregistrierungen sind noch nicht veröffentlicht. Nutze Quellen oder verfügbare Release-Dateien. Ein Workflow allein belegt keinen erfolgreichen Plattform-Build; prüfe CI und Release-Ergebnisse.
 
 ## Lokal starten
 
@@ -45,7 +45,7 @@ Wähle zwei deckende sRGB-Bogenfarben und einen Hintergrund. assess() bewertet d
 
 ## Kamera integrieren
 
-Der Leser benötigt ein zusammenhängendes Graustufenbild. RGBA wird mit (77R+150G+29B)>>8 umgerechnet. Bei CameraX oder AVFoundation die Y-Ebene unter Beachtung von rowStride und pixelStride kopieren. Worker oder Hintergrundthread verwenden, veraltete Frames verwerfen und Aktionen erst nach zwei gleichen validierten Ergebnissen auslösen. Die Webdemo bietet Kamerawahl und reduzierte Animation. Browser benötigen HTTPS oder localhost sowie Zustimmung. Frames bleiben auf dem Gerät.
+Der Leser benötigt ein zusammenhängendes Graustufenbild. RGBA wird mit (77R+150G+29B)>>8 umgerechnet. Bei CameraX oder AVFoundation die Y-Ebene unter Beachtung von rowStride und pixelStride kopieren. Worker oder Hintergrundthread verwenden, veraltete Frames verwerfen und Aktionen erst nach zwei gleichen validierten Ergebnissen auslösen. Die Webdemo bietet Kamerawahl und reduzierte Animation. Browser benötigen HTTPS oder localhost sowie Zustimmung. Frames bleiben auf dem Gerät. Die Demo fordert 1280×720 bei 15 Bildern/s an, analysiert aktuelle Bilder in verschiedenen Auflösungen und verwendet die erkannte Region zur Bestätigung erneut. Zwischen Versuchen liegen Pausen; nach 15 Sekunden sinkt die Rate, nach bestätigtem Lesen stoppt die Kamera und nach 60 Sekunden ohne Ergebnis pausiert der Scan. Dies reduziert die Arbeit, garantiert aber keine Gerätetemperatur.
 
 ## Plattformen und Beispiele
 
@@ -54,7 +54,7 @@ Ein Motor für WebAssembly und natives Rust/C. macOS ARM64 und Web wurden lokal 
 ### Web / JavaScript
 
 ```
-npm install ./nikgariel-nanocode-0.2.0.tgz
+npm install ./nikgariel-nanocode-0.2.1.tgz
 ```
 
 ```js
@@ -73,7 +73,7 @@ if (result) console.log(result.bytes, result.formatName);
 ### Node.js
 
 ```
-npm install ./nikgariel-nanocode-0.2.0.tgz
+npm install ./nikgariel-nanocode-0.2.1.tgz
 ```
 
 ```js
@@ -109,7 +109,7 @@ if let result = try NanoCode.scan(gray, width: width, height: height) {
 // Add the extracted release Maven repository to settings.gradle:
 maven { url = uri("../nanocode-maven") }
 // app/build.gradle:
-implementation("dev.nanocode:nanocode:0.2.0")
+implementation("dev.nanocode:nanocode:0.2.1")
 ```
 
 ```kotlin

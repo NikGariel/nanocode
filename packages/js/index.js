@@ -1,5 +1,5 @@
 /** Native Rust codec and detector, compiled unchanged to WebAssembly. */
-export async function loadNanoCode(source = new URL('./nanocode.wasm', import.meta.url)) {
+export async function loadNanoCode(source = new URL('./nanocode.wasm'+new URL(import.meta.url).search, import.meta.url)) {
   let binary=source;
   if(!(source instanceof Uint8Array)&&!(source instanceof ArrayBuffer)&&!(source instanceof WebAssembly.Module)){
     const response=await fetch(source);

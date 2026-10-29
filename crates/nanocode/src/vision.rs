@@ -108,15 +108,18 @@ fn cost(p: &[f64; 7], points: &[(f64, f64)], radii: &[f64]) -> f64 {
     if p[2] < 25. || p[3] < 25. || p[4].abs() > 1. || p[5].abs() > 0.5 || p[6].abs() > 0.5 {
         return f64::INFINITY;
     }
+    let first = radii[0];
+    let pitch = radii[1] - first;
+    let last = (radii.len() - 1) as f64;
     points
         .iter()
         .map(|&(x, y)| {
             let (u, v) = inverse(p, x, y);
-            let r = u.hypot(v);
-            radii
-                .iter()
-                .map(|&target| (r - target).powi(2))
-                .fold(f64::INFINITY, f64::min)
+            let r = (u * u + v * v).sqrt();
+            // All v1/v2 profiles have uniformly spaced radii. Constant-time nearest
+            // ring avoids a linear search and the expensive portable hypot per point.
+            let ring = ((r - first) / pitch).round().clamp(0., last);
+            (r - (first + ring * pitch)).powi(2)
         })
         .sum::<f64>()
         / points.len() as f64
@@ -181,11 +184,35 @@ pub fn scan(gray: &[u8], width: usize, height: usize) -> Result<Detection, Error
     {
         return Err(Error::Invalid);
     }
-    // Preserve the fast path for clean generated images and a close-up camera view.
-    if let Ok(found) = scan_region(gray, width, height, &mut 14000, false) {
+    if let Ok(found) = scan_pass(gray, width, height, 14000, 6000) {
         return Ok(found);
     }
-    let mut remaining = 6000;
+    let min = gray.iter().copied().min().unwrap_or(0);
+    let max = gray.iter().copied().max().unwrap_or(0);
+    if max.saturating_sub(min) < 35 {
+        return Err(Error::NotFound);
+    }
+    // Flat-field the local background for monitor brightness gradients and banding.
+    // Inverting first also handles a dark quiet zone. Every attempt still validates CRC.
+    for invert in [false, true] {
+        let corrected = crate::vision_preprocess::flatten(gray, width, height, invert);
+        if let Ok(found) = scan_pass(&corrected, width, height, 4000, 2000) {
+            return Ok(found);
+        }
+    }
+    Err(Error::NotFound)
+}
+fn scan_pass(
+    gray: &[u8],
+    width: usize,
+    height: usize,
+    whole_budget: usize,
+    mut remaining: usize,
+) -> Result<Detection, Error> {
+    // Preserve the fast path for clean generated images and a close-up camera view.
+    if let Ok(found) = scan_region(gray, width, height, &mut { whole_budget }, false) {
+        return Ok(found);
+    }
     for region in crate::vision_regions::proposals(gray, width, height) {
         // An edge component may be the code's card border rather than its outer ring.
         // Retry just inside that border to exclude surrounding UI and its antialiasing.
@@ -223,9 +250,13 @@ fn scan_region(
 ) -> Result<Detection, Error> {
     let l = levels(gray).ok_or(Error::NotFound)?;
     let classify = |v: u8| {
-        (0..3)
-            .min_by(|&a, &b| (v as f64 - l[a]).abs().total_cmp(&(v as f64 - l[b]).abs()))
-            .unwrap()
+        if v as f64 <= (l[0] + l[1]) * 0.5 {
+            0
+        } else if v as f64 <= (l[1] + l[2]) * 0.5 {
+            1
+        } else {
+            2
+        }
     };
     let mut border = [0usize; 3];
     for x in 0..width {
@@ -281,9 +312,13 @@ fn scan_region(
     };
     let l = levels(&palette_pixels).unwrap_or(l);
     let classify = |v: u8| {
-        (0..3)
-            .min_by(|&a, &b| (v as f64 - l[a]).abs().total_cmp(&(v as f64 - l[b]).abs()))
-            .unwrap()
+        if v as f64 <= (l[0] + l[1]) * 0.5 {
+            0
+        } else if v as f64 <= (l[1] + l[2]) * 0.5 {
+            1
+        } else {
+            2
+        }
     };
     let mut border = [0usize; 3];
     for x in 0..width {
@@ -299,7 +334,7 @@ fn scan_region(
     let bit_threshold = (l[inks[0]] + l[inks[1]]) / 2.;
     let is_ink = |v: u8| classify(v) != background;
     let mut points = Vec::new();
-    let stride = (count / 3000).max(1);
+    let stride = (count / 1200).max(1);
     let mut index = 0;
     for (i, &v) in gray.iter().enumerate() {
         if is_ink(v) && outside_logo(i) {
@@ -412,50 +447,111 @@ fn scan_format(
     if score > format.stroke.powi(2) / 5. {
         return None;
     }
+    decode_pose(gray, width, height, bit_threshold, format, &p)
+}
+
+// Bilinear sampling suppresses subpixel phase changes and screen-pixel moiré.
+fn luminance_at(gray: &[u8], width: usize, height: usize, q: Point) -> Option<f64> {
+    if !q.x.is_finite()
+        || !q.y.is_finite()
+        || q.x < 0.
+        || q.y < 0.
+        || q.x >= (width - 1) as f64
+        || q.y >= (height - 1) as f64
+    {
+        return None;
+    }
+    let x = q.x as usize;
+    let y = q.y as usize;
+    let fx = q.x - x as f64;
+    let fy = q.y - y as f64;
+    let row = y * width + x;
+    Some(
+        (gray[row] as f64 * (1. - fx) + gray[row + 1] as f64 * fx) * (1. - fy)
+            + (gray[row + width] as f64 * (1. - fx) + gray[row + width + 1] as f64 * fx) * fy,
+    )
+}
+
+fn decode_pose(
+    gray: &[u8],
+    width: usize,
+    height: usize,
+    threshold: f64,
+    format: Format,
+    p: &[f64; 7],
+) -> Option<Detection> {
     let samples = format.points();
+    let mut cells = vec![0u8; format.cells()];
     for step in 0..720 {
         let angle = step as f64 * std::f64::consts::TAU / 720.;
         let (sin, cos) = angle.sin_cos();
-        let mut cells = vec![0u8; format.cells()];
+        let sample = |i: usize| {
+            let (x, y) = samples[i];
+            luminance_at(
+                gray,
+                width,
+                height,
+                forward(p, x * cos - y * sin, x * sin + y * cos),
+            )
+            .map(|v| u8::from(v <= threshold))
+        };
+        // Read the protected magic before sampling hundreds of payload cells.
+        // Both versions share the first two words and interleaving. Never accept
+        // a header alone: the complete packet still has to pass ECC and CRC.
+        let mut header = [0u8; 13];
         let mut valid = true;
-        for (i, &(x, y)) in samples.iter().enumerate() {
-            let q = forward(&p, x * cos - y * sin, x * sin + y * cos);
-            if !q.x.is_finite()
-                || !q.y.is_finite()
-                || q.x < 1.
-                || q.y < 1.
-                || q.x >= width as f64 - 2.
-                || q.y >= height as f64 - 2.
-            {
+        for (i, bit) in header.iter_mut().enumerate() {
+            if let Some(v) = sample(i) {
+                *bit = v;
+            } else {
                 valid = false;
                 break;
             }
-            let ix = q.x.round() as usize;
-            let iy = q.y.round() as usize;
-            cells[i] = u8::from(gray[iy * width + ix] as f64 <= bit_threshold);
         }
-        if valid {
-            for polarity in 0..2 {
-                if polarity == 1 {
-                    for cell in &mut cells {
-                        *cell ^= 1;
-                    }
+        if !valid {
+            continue;
+        }
+        for polarity in 0..2 {
+            if crate::unhamming(header.map(|v| v ^ polarity)).map(|v| v.0) != Ok(0x4e) {
+                continue;
+            }
+            let mut second = [0u8; 13];
+            for (j, bit) in second.iter_mut().enumerate() {
+                if let Some(v) = sample(5 * 13 + j) {
+                    *bit = v ^ polarity;
+                } else {
+                    valid = false;
+                    break;
                 }
-                let mut decoded = family::decode(&cells, format).map(|(p, c)| (p, c, format.id));
-                if decoded.is_err() && format.id == 3 {
-                    let legacy: &[u8; CELLS] = cells.as_slice().try_into().unwrap();
-                    decoded = decode(legacy).map(|(p, c)| (p, c, 0));
+            }
+            if !valid || crate::unhamming(second).map(|v| v.0) != Ok(0x43) {
+                continue;
+            }
+            for (i, bit) in cells.iter_mut().enumerate() {
+                if let Some(v) = sample(i) {
+                    *bit = v ^ polarity;
+                } else {
+                    valid = false;
+                    break;
                 }
-                if let Ok((payload, corrected, format_id)) = decoded {
-                    let corners = REFERENCE_CORNERS
-                        .map(|(x, y)| forward(&p, x * cos - y * sin, x * sin + y * cos));
-                    return Some(Detection {
-                        payload,
-                        corrected,
-                        corners,
-                        format_id,
-                    });
-                }
+            }
+            if !valid {
+                continue;
+            }
+            let mut decoded = family::decode(&cells, format).map(|(p, c)| (p, c, format.id));
+            if decoded.is_err() && format.id == 3 {
+                let legacy: &[u8; CELLS] = cells.as_slice().try_into().unwrap();
+                decoded = decode(legacy).map(|(p, c)| (p, c, 0));
+            }
+            if let Ok((payload, corrected, format_id)) = decoded {
+                let corners = REFERENCE_CORNERS
+                    .map(|(x, y)| forward(p, x * cos - y * sin, x * sin + y * cos));
+                return Some(Detection {
+                    payload,
+                    corrected,
+                    corners,
+                    format_id,
+                });
             }
         }
     }

@@ -13,7 +13,7 @@ NanoCode는 브랜드 앱을 위한 개방형 실험적 원형 2D 코드 형식�
 
 ## 상태와 설치
 
-0.2.0에는 Rust 생성기와 판독기, C ABI, JavaScript/WebAssembly 패키지 및 Apple·Android·Dart 어댑터가 있습니다. 공개 패키지 레지스트리에는 아직 게시하지 않았습니다. 소스나 제공되는 릴리스 파일을 사용하세요. 워크플로가 있다고 플랫폼 빌드가 성공한 것은 아닙니다. 도입 전 CI와 릴리스 결과를 확인하세요.
+0.2.1에는 Rust 생성기와 판독기, C ABI, JavaScript/WebAssembly 패키지 및 Apple·Android·Dart 어댑터가 있습니다. 공개 패키지 레지스트리에는 아직 게시하지 않았습니다. 소스나 제공되는 릴리스 파일을 사용하세요. 워크플로가 있다고 플랫폼 빌드가 성공한 것은 아닙니다. 도입 전 CI와 릴리스 결과를 확인하세요.
 
 ## 로컬 실행
 
@@ -45,7 +45,7 @@ npm run dev
 
 ## 카메라 통합
 
-판독기는 카메라 객체가 아닌 연속된 회색조 프레임을 받습니다. RGBA는 (77R+150G+29B)>>8로 변환합니다. CameraX·AVFoundation은 rowStride·pixelStride를 고려해 Y 평면을 복사하세요. Worker나 백그라운드 스레드에서 처리하고 오래된 프레임은 버리며 검증된 동일 결과 두 번을 확인한 후 동작하세요. 데모는 카메라 선택과 모션 감소를 지원합니다. 브라우저는 HTTPS 또는 localhost와 권한이 필요합니다. 프레임은 기기에 남습니다.
+판독기는 카메라 객체가 아닌 연속된 회색조 프레임을 받습니다. RGBA는 (77R+150G+29B)>>8로 변환합니다. CameraX·AVFoundation은 rowStride·pixelStride를 고려해 Y 평면을 복사하세요. Worker나 백그라운드 스레드에서 처리하고 오래된 프레임은 버리며 검증된 동일 결과 두 번을 확인한 후 동작하세요. 데모는 카메라 선택과 모션 감소를 지원합니다. 브라우저는 HTTPS 또는 localhost와 권한이 필요합니다. 프레임은 기기에 남습니다. 데모는 1280×720, 15fps를 요청하고 최신 프레임을 여러 해상도로 분석하며 검출 영역을 재사용해 확인합니다. 시도 사이에 쉬고 15초 후 빈도를 줄이며, 확인 후 카메라를 끄고 60초간 결과가 없으면 일시 정지합니다. 처리량을 줄이지만 기기 온도를 보장하지는 않습니다.
 
 ## 플랫폼과 예제
 
@@ -54,7 +54,7 @@ npm run dev
 ### Web / JavaScript
 
 ```
-npm install ./nikgariel-nanocode-0.2.0.tgz
+npm install ./nikgariel-nanocode-0.2.1.tgz
 ```
 
 ```js
@@ -73,7 +73,7 @@ if (result) console.log(result.bytes, result.formatName);
 ### Node.js
 
 ```
-npm install ./nikgariel-nanocode-0.2.0.tgz
+npm install ./nikgariel-nanocode-0.2.1.tgz
 ```
 
 ```js
@@ -109,7 +109,7 @@ if let result = try NanoCode.scan(gray, width: width, height: height) {
 // Add the extracted release Maven repository to settings.gradle:
 maven { url = uri("../nanocode-maven") }
 // app/build.gradle:
-implementation("dev.nanocode:nanocode:0.2.0")
+implementation("dev.nanocode:nanocode:0.2.1")
 ```
 
 ```kotlin

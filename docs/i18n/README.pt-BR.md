@@ -13,7 +13,7 @@ NanoCode é um formato aberto e experimental de código 2D circular para aplicat
 
 ## Status e instalação
 
-A versão 0.2.0 inclui gerador e leitor Rust, ABI C e pacote JavaScript/WebAssembly. Há adaptadores Apple, Android e Dart no repositório. Ainda não há publicação em registros públicos: use fontes ou artefatos disponíveis. A existência de um workflow não comprova uma compilação bem-sucedida; verifique CI e releases.
+A versão 0.2.1 inclui gerador e leitor Rust, ABI C e pacote JavaScript/WebAssembly. Há adaptadores Apple, Android e Dart no repositório. Ainda não há publicação em registros públicos: use fontes ou artefatos disponíveis. A existência de um workflow não comprova uma compilação bem-sucedida; verifique CI e releases.
 
 ## Execução local
 
@@ -45,7 +45,7 @@ Defina duas cores sRGB opacas e o fundo. assess() avalia separação; background
 
 ## Integração da câmera
 
-O leitor recebe um quadro de cinza contíguo, não uma câmera. Converta RGBA com (77R+150G+29B)>>8. Em CameraX ou AVFoundation copie o plano Y respeitando rowStride e pixelStride. Use Worker ou thread de fundo, descarte quadros antigos e confirme duas leituras validadas iguais antes de agir. A demo tem seleção de câmera e movimento reduzido. O navegador exige HTTPS ou localhost e permissão. Os quadros ficam no dispositivo.
+O leitor recebe um quadro de cinza contíguo, não uma câmera. Converta RGBA com (77R+150G+29B)>>8. Em CameraX ou AVFoundation copie o plano Y respeitando rowStride e pixelStride. Use Worker ou thread de fundo, descarte quadros antigos e confirme duas leituras validadas iguais antes de agir. A demo tem seleção de câmera e movimento reduzido. O navegador exige HTTPS ou localhost e permissão. Os quadros ficam no dispositivo. A demonstração solicita 1280×720 a 15 fps, analisa quadros novos em diferentes resoluções e reutiliza a região detectada para confirmar. Há pausas entre tentativas; após 15 segundos a frequência diminui, após confirmação a câmera desliga e após 60 segundos sem resultado a leitura pausa. Isso reduz o trabalho, mas não garante a temperatura do dispositivo.
 
 ## Plataformas e exemplos
 
@@ -54,7 +54,7 @@ O motor atende WebAssembly e Rust/C nativo. macOS ARM64 e Web foram executados l
 ### Web / JavaScript
 
 ```
-npm install ./nikgariel-nanocode-0.2.0.tgz
+npm install ./nikgariel-nanocode-0.2.1.tgz
 ```
 
 ```js
@@ -73,7 +73,7 @@ if (result) console.log(result.bytes, result.formatName);
 ### Node.js
 
 ```
-npm install ./nikgariel-nanocode-0.2.0.tgz
+npm install ./nikgariel-nanocode-0.2.1.tgz
 ```
 
 ```js
@@ -109,7 +109,7 @@ if let result = try NanoCode.scan(gray, width: width, height: height) {
 // Add the extracted release Maven repository to settings.gradle:
 maven { url = uri("../nanocode-maven") }
 // app/build.gradle:
-implementation("dev.nanocode:nanocode:0.2.0")
+implementation("dev.nanocode:nanocode:0.2.1")
 ```
 
 ```kotlin
